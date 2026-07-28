@@ -88,3 +88,37 @@ class tokentype(Enum):
     byref = 70
     byval = 71
     eof = 72
+
+class token:
+    def __init__(self, type: tokentype, string_: str, literal, line: int):
+        self.type = type
+        self.string_ = string_
+        self.literal = literal
+        self.line = line
+
+i = 0
+tokens = []
+file = "DECLARE index <- INTEGER"
+for j in range(len(file)):
+    if file[j] == " ":
+        tokens.append(file[i:j].lower())
+        i=j+1
+    elif file[j] == file[::-1][0] and j == len(file)-1:
+        tokens.append(file[i:j+1].lower())
+        i=j+1
+print(tokens)
+for k in range(len(tokens)):
+    matched = False
+    if tokens[k] == "<-":
+        matched = True
+        name = "arrow" # number 22
+    else:
+        for j in tokentype.__members__:
+            if j == tokens[k]:
+                matched = True
+                name = j
+                break
+    if matched == True:
+            tokens[k] = f"tokentype.{name}"
+
+print(tokens)
