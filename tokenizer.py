@@ -66,6 +66,7 @@ class tokentype(Enum):
     of = 51
     otherwise = 52
     endcase = 53
+
     input_ = 54
     output_ = 55
 
@@ -89,6 +90,7 @@ class tokentype(Enum):
     byval = 71
     eof = 72
 
+
 class token:
     def __init__(self, type: tokentype, string_: str, literal, line: int):
         self.type = type
@@ -98,7 +100,7 @@ class token:
 
 i = 0
 tokens = []
-file = "DECLARE index <- INTEGER"
+file = "DECLARE index < 3 "
 for j in range(len(file)):
     if file[j] == " ":
         tokens.append(file[i:j].lower())
@@ -107,18 +109,43 @@ for j in range(len(file)):
         tokens.append(file[i:j+1].lower())
         i=j+1
 print(tokens)
+
+underscore = ["and", "not", "or",
+              "if", "then", "else", "endif",
+              "for", "to", "step", "next",
+              "while", "do", "endwhile",
+              "repeat", "until",
+              "input", "output",
+              "procedure", "endprocedure",
+              "call", "function", "returns", "return", "endfunction"]
+
+nospace = {"left_par" : "(", "right_par" : ")", "left_brkt" : "[", "right_brkt" : "]", "comma" : ",", "mark_exclam" :  "!", "colon" : ":","ampersand" : "&",
+           "plus" : "+", "sub" : "-", "mul" : "*", "div" : "/", "pow" : "^", "mod_operate" : "mod", "div_operate" : "div", "eql" : "=", "less" : "<", "less_eql" : "≤", "more" : ">", "more_eql" : "≥", "not_eql" : "<>", "arrow" : "<-"}
+inv_nospace = {'(': 'left_par', ')': 'right_par', '[': 'left_brkt', ']': 'right_brkt', ',': 'comma', '!': 'mark_exclam', ':': 'colon', '&': 'ampersand',
+            '+': 'plus', '-': 'sub', '*': 'mul', '/': 'div', '^': 'pow', 'mod': 'mod_operate', 'div': 'div_operate', '=': 'eql', '<': 'less', '≤': 'less_eql', '>': 'more', '≥': 'more_eql', '<>': 'not_eql', '<-': 'arrow'}
 for k in range(len(tokens)):
     matched = False
-    if tokens[k] == "<-":
+    if tokens[k] == "<-" or tokens[k] == "←":
         matched = True
         name = "arrow" # number 22
     else:
+        if tokens[k] in underscore:
+            tokens[k] = f"{tokens[k]}_"
         for j in tokentype.__members__:
             if j == tokens[k]:
                 matched = True
                 name = j
                 break
+
+        list_inv_nospace = list(inv_nospace)
+        for i in range(len(list_inv_nospace)):
+            if list_inv_nospace[i] == tokens[k]:
+                matched = True
+                name = inv_nospace[list_inv_nospace[i]]
+                break
     if matched == True:
             tokens[k] = f"tokentype.{name}"
+    elif matched == False:
+        tokens[k] = f"tokentype.identifier"
 
 print(tokens)
