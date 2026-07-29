@@ -98,31 +98,63 @@ class token:
         self.literal = literal
         self.line = line
 
-i = 0
+    def __repr__(self):
+        return f"token({self.type.name}), value = {self.string_}, line = {self.line} \n"
+
 tokens = []
-file = "DECLARE index < 3 "
+
+file = "DECLARE index<3 " # test string
+
+
+number_newline = 1
+for i in file:
+    if i == "\n":
+        number_newline = number_newline + 1
+
+
+spacecheck = ""
+index = 0
+twolist = ["<-", "<>"]
+onelist = ["(", ")", "[", "]", ",", "!", ":", "&", "+", "-", "*", "/", "^", "=", "<", ">", "≤", "≥", "←"]
+
+while index < len(file):
+    if index + 1 < len(file) and file[index:index + 2] in twolist:
+        spacecheck = spacecheck + f" {file[index:index + 2]} "
+        index = index + 2
+    elif file[index] in onelist:
+        spacecheck = spacecheck + f" {file[index]} "
+        index = index + 1
+    else:
+        spacecheck = spacecheck + file[index]
+        index = index + 1
+
+while "  " in spacecheck:
+    spacecheck = spacecheck.replace("  ", " ")
+
+file = spacecheck
+
+i_ = 0
 for j in range(len(file)):
     if file[j] == " ":
-        tokens.append(file[i:j].lower())
-        i=j+1
-    elif file[j] == file[::-1][0] and j == len(file)-1:
-        tokens.append(file[i:j+1].lower())
-        i=j+1
+        tokens.append(file[i_:j].lower())
+        i_ = j + 1
+    elif file[j] == file[::-1][0] and j == len(file) - 1:
+        tokens.append(file[i_:j + 1].lower())
+        i_ = j + 1
 print(tokens)
 
-underscore = ["and", "not", "or",
-              "if", "then", "else", "endif",
-              "for", "to", "step", "next",
-              "while", "do", "endwhile",
-              "repeat", "until",
-              "input", "output",
-              "procedure", "endprocedure",
-              "call", "function", "returns", "return", "endfunction"]
+
+underscore = []
+for i in tokentype.__members__:
+    if i.endswith("_"):
+        underscore.append(i[:-1])
 
 nospace = {"left_par" : "(", "right_par" : ")", "left_brkt" : "[", "right_brkt" : "]", "comma" : ",", "mark_exclam" :  "!", "colon" : ":","ampersand" : "&",
            "plus" : "+", "sub" : "-", "mul" : "*", "div" : "/", "pow" : "^", "mod_operate" : "mod", "div_operate" : "div", "eql" : "=", "less" : "<", "less_eql" : "≤", "more" : ">", "more_eql" : "≥", "not_eql" : "<>", "arrow" : "<-"}
 inv_nospace = {'(': 'left_par', ')': 'right_par', '[': 'left_brkt', ']': 'right_brkt', ',': 'comma', '!': 'mark_exclam', ':': 'colon', '&': 'ampersand',
             '+': 'plus', '-': 'sub', '*': 'mul', '/': 'div', '^': 'pow', 'mod': 'mod_operate', 'div': 'div_operate', '=': 'eql', '<': 'less', '≤': 'less_eql', '>': 'more', '≥': 'more_eql', '<>': 'not_eql', '<-': 'arrow'}
+
+
 for k in range(len(tokens)):
     matched = False
     if tokens[k] == "<-" or tokens[k] == "←":
@@ -143,9 +175,14 @@ for k in range(len(tokens)):
                 matched = True
                 name = inv_nospace[list_inv_nospace[i]]
                 break
+
     if matched == True:
-            tokens[k] = f"tokentype.{name}"
+        obj = tokentype[name]
+        tokens[k] = token(type = obj, string_ = tokens[k], literal = tokens[k], line = number_newline)
     elif matched == False:
-        tokens[k] = f"tokentype.identifier"
+        if tokens[k].isdigit() == True:
+            tokens[k] = token(type=tokentype.integer, string_ = tokens[k], literal = int(tokens[k]), line = number_newline)
+        else:
+            tokens[k] = token(type=tokentype.identifier, string_ = tokens[k], literal = tokens[k], line = number_newline)
 
 print(tokens)
