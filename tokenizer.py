@@ -1,7 +1,9 @@
+# importing libs
 import os
 import re
 from enum import Enum, unique
 
+#setting up class for tokens
 @unique
 class tokentype(Enum):
     left_par = 1 # (
@@ -91,6 +93,7 @@ class tokentype(Enum):
     eof = 72
 
 
+# class for tokens to hold data such as type, the value it holds, and if an error pops up, the line where it comes
 class token:
     def __init__(self, type: tokentype, string_: str, literal, line: int):
         self.type = type
@@ -99,40 +102,92 @@ class token:
         self.line = line
 
     def __repr__(self):
-        return f"token({self.type.name}), value = {self.string_}, line = {self.line} \n"
+        return f"token({self.type.name}), value: {self.string_}, line = {self.line} \n"
 
 tokens = []
+spaces = []
+spacecheck = ""
+index = 0
+twolist = ["<-", "<>"]
+onelist = ["(", ")", "[", "]", ",", "!", ":", "&", "+", "-", "*", "/", "^", "=", "<", ">", "≤", "≥", "←"]
+# linking symbols with names and the dict's inverse)
+nospace = {"left_par" : "(", "right_par" : ")", "left_brkt" : "[", "right_brkt" : "]", "comma" : ",", "mark_exclam" :  "!", "colon" : ":","ampersand" : "&",
+           "plus" : "+", "sub" : "-", "mul" : "*", "div" : "/", "pow" : "^", "mod_operate" : "mod", "div_operate" : "div", "eql" : "=", "less" : "<", "less_eql" : "≤", "more" : ">", "more_eql" : "≥", "not_eql" : "<>", "arrow" : "<-"}
+inv_nospace = {'(': 'left_par', ')': 'right_par', '[': 'left_brkt', ']': 'right_brkt', ',': 'comma', '!': 'mark_exclam', ':': 'colon', '&': 'ampersand',
+            '+': 'plus', '-': 'sub', '*': 'mul', '/': 'div', '^': 'pow', 'mod': 'mod_operate', 'div': 'div_operate', '=': 'eql', '<': 'less', '≤': 'less_eql', '>': 'more', '≥': 'more_eql', '<>': 'not_eql', '<-': 'arrow'}
+in_string = False
 
-file = "DECLARE index<3 " # test string
 
+file = "DECLARE index < 3 \n IF index = 2" # test string
 
+# checking for number of newlines in the file to know which line an error popped up in
 number_newline = 1
 for i in file:
     if i == "\n":
         number_newline = number_newline + 1
 
-
-spacecheck = ""
-index = 0
-twolist = ["<-", "<>"]
-onelist = ["(", ")", "[", "]", ",", "!", ":", "&", "+", "-", "*", "/", "^", "=", "<", ">", "≤", "≥", "←"]
-
+token_index = 0
+# forward and backward searching to see if "<>" can be confused as something else
 while index < len(file):
-    if index + 1 < len(file) and file[index:index + 2] in twolist:
-        spacecheck = spacecheck + f" {file[index:index + 2]} "
-        index = index + 2
-    elif file[index] in onelist:
-        spacecheck = spacecheck + f" {file[index]} "
-        index = index + 1
+    if file[index] == "'" or file[index] == "\"":
+        if in_string == False:
+            in_string = True
+            spacecheck = spacecheck + file[index]
+            index = index + 1
+            number = 0
+        else:
+            in_string = False
+            spacecheck = spacecheck + file[index]
+            index = index + 1
+        continue
+
+    if in_string == False:    
+        if index + 1 < len(file) and file[index:index + 2] in twolist:
+            prev = (file[index - 1] == " ")
+            next = (file[index + 2] == " ")
+
+            spacecheck = spacecheck + f" {file[index:index + 2]} "
+            index = index + 2
+
+            if prev and next:
+                token_index = token_index + 2
+            elif prev or next:
+                token_index = token_index + 1
+            
+
+        elif file[index] in onelist:
+            prev = (file[index - 1] == " ")
+            next = (file[index + 1] == " ")
+
+            spacecheck = spacecheck + f" {file[index]} "
+            index = index + 1
+
+            if prev and next:
+                token_index = token_index + 2
+            elif prev or next:
+                token_index = token_index + 1
+
+        else:
+            if file[index] == " ":
+                token_index = token_index + 1
+            spacecheck = spacecheck + file[index]
+            index = index + 1
     else:
-        spacecheck = spacecheck + file[index]
+        if file[index] == " ":
+            spaces.append(token_index)
+            spacecheck = spacecheck + "s"
+            number = 0
+        else:
+            spacecheck = spacecheck + file[index]
         index = index + 1
+
 
 while "  " in spacecheck:
     spacecheck = spacecheck.replace("  ", " ")
 
 file = spacecheck
 
+# slices strings
 i_ = 0
 for j in range(len(file)):
     if file[j] == " ":
@@ -143,32 +198,42 @@ for j in range(len(file)):
         i_ = j + 1
 print(tokens)
 
+# cleans for empty lines
+cleaned = []
+for i in tokens:
+    if i != "":
+        cleaned.append(i)
 
+tokens = cleaned
+
+# checking for things such as "input_" which have an underscore because they are also python keywords (note- because of consistency, even things which are not py keywords but are in a category of others which are py keywords have underscores.)
 underscore = []
 for i in tokentype.__members__:
     if i.endswith("_"):
         underscore.append(i[:-1])
 
-nospace = {"left_par" : "(", "right_par" : ")", "left_brkt" : "[", "right_brkt" : "]", "comma" : ",", "mark_exclam" :  "!", "colon" : ":","ampersand" : "&",
-           "plus" : "+", "sub" : "-", "mul" : "*", "div" : "/", "pow" : "^", "mod_operate" : "mod", "div_operate" : "div", "eql" : "=", "less" : "<", "less_eql" : "≤", "more" : ">", "more_eql" : "≥", "not_eql" : "<>", "arrow" : "<-"}
-inv_nospace = {'(': 'left_par', ')': 'right_par', '[': 'left_brkt', ']': 'right_brkt', ',': 'comma', '!': 'mark_exclam', ':': 'colon', '&': 'ampersand',
-            '+': 'plus', '-': 'sub', '*': 'mul', '/': 'div', '^': 'pow', 'mod': 'mod_operate', 'div': 'div_operate', '=': 'eql', '<': 'less', '≤': 'less_eql', '>': 'more', '≥': 'more_eql', '<>': 'not_eql', '<-': 'arrow'}
-
-
+# beeg thing
 for k in range(len(tokens)):
+    # checking for arrows (may be redundant. old code)
     matched = False
     if tokens[k] == "<-" or tokens[k] == "←":
         matched = True
         name = "arrow" # number 22
+
     else:
+        # same thing as the other underscore thing, but that was for the names, and this is for the tokens from the file
         if tokens[k] in underscore:
             tokens[k] = f"{tokens[k]}_"
+
+        # to set the names for direct matches
         for j in tokentype.__members__:
             if j == tokens[k]:
                 matched = True
                 name = j
                 break
 
+        # to see if the given token is a symbol
+        # changing it into a list for easier workability
         list_inv_nospace = list(inv_nospace)
         for i in range(len(list_inv_nospace)):
             if list_inv_nospace[i] == tokens[k]:
@@ -176,13 +241,19 @@ for k in range(len(tokens)):
                 name = inv_nospace[list_inv_nospace[i]]
                 break
 
+    # if it has been matched, then give it it's attributes
     if matched == True:
         obj = tokentype[name]
         tokens[k] = token(type = obj, string_ = tokens[k], literal = tokens[k], line = number_newline)
     elif matched == False:
+        if tokens[k].startswith("'") or tokens[k].startswith("\""):
+            for i in spaces:
+                tokens[i] = tokens[i].replace("s", " ")
+        # if it hasn't been matched, check if it is a number. if so provide a number's attributes
         if tokens[k].isdigit() == True:
-            tokens[k] = token(type=tokentype.integer, string_ = tokens[k], literal = int(tokens[k]), line = number_newline)
+            tokens[k] = token(type = tokentype.integer, string_ = tokens[k], literal = int(tokens[k]), line = number_newline)
+        # if it is not a number, it is an identifier
         else:
-            tokens[k] = token(type=tokentype.identifier, string_ = tokens[k], literal = tokens[k], line = number_newline)
+            tokens[k] = token(type = tokentype.identifier, string_ = tokens[k], literal = tokens[k], line = number_newline)
 
 print(tokens)

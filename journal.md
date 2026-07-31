@@ -9,4 +9,6 @@ Next, I need to map the words to the words using a dictionary. After that, I thi
 Spent today working out a barely-working system that translated the words identified into those in my list of tokens. Next, I need to include acceptability even when things aren't separated by space. eg- "if Index < 3" and "if Index<3"
 
 #### Day 3
-Spent today working on yesterday's problem- "Index<3" not being registered individually. Took a long time to fix that, but works better now!    
+Spent today working on yesterday's problem- "Index<3" not being registered individually. Took a long time to fix that, but works better now!
+
+#### Day 4
