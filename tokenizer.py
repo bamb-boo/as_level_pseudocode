@@ -118,23 +118,33 @@ inv_nospace = {'(': 'left_par', ')': 'right_par', '[': 'left_brkt', ']': 'right_
 in_string = False
 
 
-file = "DECLARE index < 3 \n IF index = 2" # test string
+file = "DECLARE index < 3 \n IF index = 2 \n hohoho" # test string
 
 # checking for number of newlines in the file to know which line an error popped up in
 number_newline = 1
-for i in file:
-    if i == "\n":
+newlines = []
+for i in range(len(file)):
+    if file[i] == "\n":
+        array = []
         number_newline = number_newline + 1
+        array.append(number_newline)
+        array.append(i)
+        newlines.append(array)
+
 
 token_index = 0
 # forward and backward searching to see if "<>" can be confused as something else
 while index < len(file):
+    if file[index] == "\n":
+        spacecheck = spacecheck + " \n "
+        index = index + 1
+        continue
+
     if file[index] == "'" or file[index] == "\"":
         if in_string == False:
             in_string = True
             spacecheck = spacecheck + file[index]
             index = index + 1
-            number = 0
         else:
             in_string = False
             spacecheck = spacecheck + file[index]
@@ -172,11 +182,11 @@ while index < len(file):
                 token_index = token_index + 1
             spacecheck = spacecheck + file[index]
             index = index + 1
+            
     else:
         if file[index] == " ":
             spaces.append(token_index)
             spacecheck = spacecheck + "s"
-            number = 0
         else:
             spacecheck = spacecheck + file[index]
         index = index + 1
@@ -189,22 +199,31 @@ file = spacecheck
 
 # slices strings
 i_ = 0
+token_place = []
+
 for j in range(len(file)):
     if file[j] == " ":
-        tokens.append(file[i_:j].lower())
+        tokens.append(file[i_:j])
+        token_place.append(i_)
         i_ = j + 1
-    elif file[j] == file[::-1][0] and j == len(file) - 1:
-        tokens.append(file[i_:j + 1].lower())
+    elif j == len(file) - 1:
+        tokens.append(file[i_:j + 1])
+        token_place.append(i_)
         i_ = j + 1
+
 print(tokens)
 
 # cleans for empty lines
 cleaned = []
-for i in tokens:
-    if i != "":
-        cleaned.append(i)
+cleaned_pos = []
+
+for i in range(len(tokens)):
+    if tokens[i] != "":
+        cleaned.append(tokens[i])
+        cleaned_pos.append(token_place[i])
 
 tokens = cleaned
+token_place = cleaned_pos
 
 # checking for things such as "input_" which have an underscore because they are also python keywords (note- because of consistency, even things which are not py keywords but are in a category of others which are py keywords have underscores.)
 underscore = []
@@ -214,6 +233,10 @@ for i in tokentype.__members__:
 
 # beeg thing
 for k in range(len(tokens)):
+    ltoken = tokens[k].lower()
+    if ltoken in underscore:
+        ltoken = f"{ltoken}_"
+
     # checking for arrows (may be redundant. old code)
     matched = False
     if tokens[k] == "<-" or tokens[k] == "←":
@@ -227,7 +250,7 @@ for k in range(len(tokens)):
 
         # to set the names for direct matches
         for j in tokentype.__members__:
-            if j == tokens[k]:
+            if j == ltoken:
                 matched = True
                 name = j
                 break
@@ -241,19 +264,24 @@ for k in range(len(tokens)):
                 name = inv_nospace[list_inv_nospace[i]]
                 break
 
+    line = 1
+    for i in newlines:
+        if token_place[k] > i[1]:
+            line = i[0]
+
     # if it has been matched, then give it it's attributes
     if matched == True:
         obj = tokentype[name]
-        tokens[k] = token(type = obj, string_ = tokens[k], literal = tokens[k], line = number_newline)
+        tokens[k] = token(type = obj, string_ = tokens[k], literal = tokens[k], line = line)
     elif matched == False:
         if tokens[k].startswith("'") or tokens[k].startswith("\""):
             for i in spaces:
                 tokens[i] = tokens[i].replace("s", " ")
         # if it hasn't been matched, check if it is a number. if so provide a number's attributes
         if tokens[k].isdigit() == True:
-            tokens[k] = token(type = tokentype.integer, string_ = tokens[k], literal = int(tokens[k]), line = number_newline)
+            tokens[k] = token(type = tokentype.integer, string_ = tokens[k], literal = int(tokens[k]), line = line)
         # if it is not a number, it is an identifier
         else:
-            tokens[k] = token(type = tokentype.identifier, string_ = tokens[k], literal = tokens[k], line = number_newline)
+            tokens[k] = token(type = tokentype.identifier, string_ = tokens[k], literal = tokens[k], line = line)
 
 print(tokens)
