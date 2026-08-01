@@ -11,4 +11,6 @@ Spent today working out a barely-working system that translated the words identi
 #### Day 3
 Spent today working on yesterday's problem- "Index<3" not being registered individually. Took a long time to fix that, but works better now!
 
-#### Day 4
+#### Day idk
+Found a lot of things new, especially about regular expressions, or regex. Will probably overwrite a lot of the code with it since I have just realized it's potential.
+Update- regex is kind of tiring to understand and write. Moreover, I think I am going to stick with my own code for now unless the need for regex comes up again. I used it now because it helped me in classifying tokens as real numbers.

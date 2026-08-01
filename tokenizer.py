@@ -2,6 +2,7 @@
 import os
 import re
 from enum import Enum, unique
+import datetime
 
 #setting up class for tokens
 @unique
@@ -104,12 +105,26 @@ class token:
     def __repr__(self):
         return f"token({self.type.name}), value: {self.string_}, line = {self.line} \n"
 
+
+# declaring some variables
 tokens = []
 spaces = []
 spacecheck = ""
 index = 0
-twolist = ["<-", "<>"]
+twolist = ["<-", "<>"] # reminder- the character "==" isn't in pseudocode
 onelist = ["(", ")", "[", "]", ",", "!", ":", "&", "+", "-", "*", "/", "^", "=", "<", ">", "≤", "≥", "←"]
+
+int_ = re.compile(r'^[-+]?[0-9]+$')
+real_ = re.compile(r'[-+]?[0-9]*\.[0-9]{1,}$')
+str_ = re.compile(r'^[\s\S]*$')
+bool_ = ("FALSE", "TRUE")
+def is_date(date):
+    try:
+        datetime.datetime.strptime(date, "%d-%m-%Y")
+        return True
+    except ValueError:
+        return False
+
 # linking symbols with names and the dict's inverse)
 nospace = {"left_par" : "(", "right_par" : ")", "left_brkt" : "[", "right_brkt" : "]", "comma" : ",", "mark_exclam" :  "!", "colon" : ":","ampersand" : "&",
            "plus" : "+", "sub" : "-", "mul" : "*", "div" : "/", "pow" : "^", "mod_operate" : "mod", "div_operate" : "div", "eql" : "=", "less" : "<", "less_eql" : "≤", "more" : ">", "more_eql" : "≥", "not_eql" : "<>", "arrow" : "<-"}
@@ -117,10 +132,9 @@ inv_nospace = {'(': 'left_par', ')': 'right_par', '[': 'left_brkt', ']': 'right_
             '+': 'plus', '-': 'sub', '*': 'mul', '/': 'div', '^': 'pow', 'mod': 'mod_operate', 'div': 'div_operate', '=': 'eql', '<': 'less', '≤': 'less_eql', '>': 'more', '≥': 'more_eql', '<>': 'not_eql', '<-': 'arrow'}
 in_string = False
 
-
 file = "DECLARE index < 3 \n IF index = 2 \n hohoho" # test string
 
-# checking for number of newlines in the file to know which line an error popped up in
+# checking for number of newlines in the file to know which line an error popped up in by using arrays to store the location of the newline and the current line
 number_newline = 1
 newlines = []
 for i in range(len(file)):
@@ -131,13 +145,18 @@ for i in range(len(file)):
         array.append(i)
         newlines.append(array)
 
-
 token_index = 0
+
 # forward and backward searching to see if "<>" can be confused as something else
 while index < len(file):
     if file[index] == "\n":
         spacecheck = spacecheck + " \n "
         index = index + 1
+        continue
+
+    if file[index:index + 1] == "//":
+        while index < len(file) and file[index] != "\n":
+            index = index + 1
         continue
 
     if file[index] == "'" or file[index] == "\"":
@@ -278,9 +297,19 @@ for k in range(len(tokens)):
             for i in spaces:
                 tokens[i] = tokens[i].replace("s", " ")
         # if it hasn't been matched, check if it is a number. if so provide a number's attributes
-        if tokens[k].isdigit() == True:
+        if int_.match(tokens[k]):
             tokens[k] = token(type = tokentype.integer, string_ = tokens[k], literal = int(tokens[k]), line = line)
-        # if it is not a number, it is an identifier
+        elif real_.match(tokens[k]):
+            tokens[k] = token(type = tokentype.real, string_ = tokens[k], literal = tokens[k], line = line)
+        # is it a string?
+        elif ((tokens[k].startswith('"') and tokens[k].endswith('"')) or (tokens[k].startswith("'") and tokens[k].endswith("'"))) and len(tokens[k])== 3:
+            tokens[k] = token(type = tokentype.char, string_ = tokens[k], literal = tokens[k], line = line)
+        elif (tokens[k].startswith('"') and tokens[k].endswith('"')) or (tokens[k].startswith("'") and tokens[k].endswith("'")):
+            tokens[k] = token(type = tokentype.string, string_ = tokens[k], literal = tokens[k], line = line)
+        elif tokens[k].lower() in bool_:
+            tokens[k] = token(type = tokentype.boolean, string_ = tokens[k], literal = tokens[k].upper(), line = line)
+        elif is_date(tokens[k]):
+            tokens[k] = token(type = tokentype.date, string_ = tokens[k], literal = tokens[k], line = line)
         else:
             tokens[k] = token(type = tokentype.identifier, string_ = tokens[k], literal = tokens[k], line = line)
 
