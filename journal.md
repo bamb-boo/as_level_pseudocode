@@ -14,3 +14,7 @@ Spent today working on yesterday's problem- "Index<3" not being registered indiv
 #### Day idk
 Found a lot of things new, especially about regular expressions, or regex. Will probably overwrite a lot of the code with it since I have just realized it's potential.
 Update- regex is kind of tiring to understand and write. Moreover, I think I am going to stick with my own code for now unless the need for regex comes up again. I used it now because it helped me in classifying tokens as real numbers.
+
+#### Day idk + 1
+I think tokenizer is done, since I can't think of anything else to tokenize right now (may change in the future). Beginning work on the parser now!
+Update- I'm going to implement top-down parsing. A top-down parser goes from left, and try a "production rule" (an if-else statement). if the rule fails, the steps are reversed, and another rule is implemented. (Could try lookahead, but seems complicated). The type of parser I'm going to implement is called the recursive descent parser. If I want to expand the scope of the project, I could also try using an LL(1) parser which uses a parsing table, but they seem very complicated based on the geeksforgeeks article I read, but that's future me to worry about!

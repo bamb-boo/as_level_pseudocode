@@ -132,7 +132,7 @@ inv_nospace = {'(': 'left_par', ')': 'right_par', '[': 'left_brkt', ']': 'right_
             '+': 'plus', '-': 'sub', '*': 'mul', '/': 'div', '^': 'pow', 'mod': 'mod_operate', 'div': 'div_operate', '=': 'eql', '<': 'less', '≤': 'less_eql', '>': 'more', '≥': 'more_eql', '<>': 'not_eql', '<-': 'arrow'}
 in_string = False
 
-file = "DECLARE index < 3 \n IF index = 2 \n hohoho" # test string
+file = 'DECLARE name : STRING \n name <- "Alice" \n IF index = 2 THEN \n status <- "passed" \n ENDIF' # test string
 
 # checking for number of newlines in the file to know which line an error popped up in by using arrays to store the location of the newline and the current line
 number_newline = 1
@@ -154,7 +154,7 @@ while index < len(file):
         index = index + 1
         continue
 
-    if file[index:index + 1] == "//":
+    if file[index:index + 2] == "//":
         while index < len(file) and file[index] != "\n":
             index = index + 1
         continue
@@ -288,29 +288,34 @@ for k in range(len(tokens)):
         if token_place[k] > i[1]:
             line = i[0]
 
+
     # if it has been matched, then give it it's attributes
     if matched == True:
         obj = tokentype[name]
         tokens[k] = token(type = obj, string_ = tokens[k], literal = tokens[k], line = line)
     elif matched == False:
-        if tokens[k].startswith("'") or tokens[k].startswith("\""):
+        if tokens[k] == "\n":
+            tokens[k] = token(type = tokentype.newline, string_ = "\n", literal = None, line = line)
+        elif tokens[k].startswith("'") or tokens[k].startswith("\""):
             for i in spaces:
                 tokens[i] = tokens[i].replace("s", " ")
-        # if it hasn't been matched, check if it is a number. if so provide a number's attributes
-        if int_.match(tokens[k]):
+        elif int_.match(tokens[k]):
             tokens[k] = token(type = tokentype.integer, string_ = tokens[k], literal = int(tokens[k]), line = line)
         elif real_.match(tokens[k]):
-            tokens[k] = token(type = tokentype.real, string_ = tokens[k], literal = tokens[k], line = line)
+            tokens[k] = token(type = tokentype.real, string_ = tokens[k], literal = float(tokens[k]), line = line)
         # is it a string?
-        elif ((tokens[k].startswith('"') and tokens[k].endswith('"')) or (tokens[k].startswith("'") and tokens[k].endswith("'"))) and len(tokens[k])== 3:
+        elif ((tokens[k].startswith('"') and tokens[k].endswith('"')) or (tokens[k].startswith("'") and tokens[k].endswith("'"))) and len(tokens[k]) == 3:
             tokens[k] = token(type = tokentype.char, string_ = tokens[k], literal = tokens[k], line = line)
         elif (tokens[k].startswith('"') and tokens[k].endswith('"')) or (tokens[k].startswith("'") and tokens[k].endswith("'")):
             tokens[k] = token(type = tokentype.string, string_ = tokens[k], literal = tokens[k], line = line)
         elif tokens[k].lower() in bool_:
-            tokens[k] = token(type = tokentype.boolean, string_ = tokens[k], literal = tokens[k].upper(), line = line)
+            tokens[k] = token(type = tokentype.boolean, string_ = tokens[k], literal = tokens[k], line = line)
         elif is_date(tokens[k]):
-            tokens[k] = token(type = tokentype.date, string_ = tokens[k], literal = tokens[k], line = line)
+            tokens[k] = token(tokentype.date, string_ = tokens[k], literal = tokens[k], line = line)
+        elif tokens[k] == "\n":
+            tokens[k] = token(type = tokentype.newline, string_ = "\\n", literal = None, line = line)
         else:
             tokens[k] = token(type = tokentype.identifier, string_ = tokens[k], literal = tokens[k], line = line)
+tokens.append(token(type = tokentype.eof, string_ = "EOF", literal = None, line = line))
 
 print(tokens)
