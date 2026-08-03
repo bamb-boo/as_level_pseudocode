@@ -19,3 +19,6 @@ Update- regex is kind of tiring to understand and write. Moreover, I think I am 
 I think tokenizer is done, since I can't think of anything else to tokenize right now (may change in the future). Beginning work on the parser now!
 Update- I'm going to implement top-down parsing. A top-down parser goes from left, and try a "production rule" (an if-else statement). if the rule fails, the steps are reversed, and another rule is implemented. (Could try lookahead, but seems complicated). The type of parser I'm going to implement is called the recursive descent parser. If I want to expand the scope of the project, I could also try using an LL(1) parser which uses a parsing table, but they seem very complicated based on the geeksforgeeks article I read, but that's future me to worry about!
 Initially, the parser will read the code left to right, and built an abstract syntax tree based on that. It uses a global pointer which tracks the current position of the cursor, upon which the abstract syntax tree is built upon.
+
+#### Day idk + 2
+Began work on the parser. Spent like 15-20 minutes re-writing the tokenizer's class identifier names. Only after completion did I realize I can import the class and then make use of .type, since I had already broken each token into its type.
