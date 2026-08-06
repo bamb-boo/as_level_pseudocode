@@ -22,3 +22,9 @@ Initially, the parser will read the code left to right, and built an abstract sy
 
 #### Day idk + 2
 Began work on the parser. Spent like 15-20 minutes re-writing the tokenizer's class identifier names. Only after completion did I realize I can import the class and then make use of .type, since I had already broken each token into its type.
+
+#### Day idk + 3
+Finished more helper functions, which are functions which make it easy for my parser to build an AST and run things. It has things such as looking at the next token, previous token, seeing if the current token is the first/last, matching a token and a tokentype inputted etc. Next, I also began building (I don't know what it is called) functions which take in the token and then return the important things from each token set. A token set is a set of tokens to do something united such as- if loops, while loops, print statements etc. By returning the needed things from each token set, a map can be built to show how to take the needed things from each set, and actually translating it into python code. I've finished 3 functions for now- 
+the declaration function (DECLARE x : integer)
+the output function (OUTPUT "hello world")
+the input function (INPUT x)

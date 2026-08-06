@@ -296,21 +296,28 @@ for k in range(len(tokens)):
     elif matched == False:
         if tokens[k] == "\n":
             tokens[k] = token(type = tokentype.newline, string_ = "\\n", literal = None, line = line)
+
         elif int_.match(tokens[k]):
             tokens[k] = token(type = tokentype.integer, string_ = tokens[k], literal = int(tokens[k]), line = line)
+
         elif real_.match(tokens[k]):
             tokens[k] = token(type = tokentype.real, string_ = tokens[k], literal = float(tokens[k]), line = line)
         # is it a string?
         elif ((tokens[k].startswith('"') and tokens[k].endswith('"')) or (tokens[k].startswith("'") and tokens[k].endswith("'"))) and len(tokens[k]) == 3:
             tokens[k] = token(type = tokentype.char, string_ = tokens[k], literal = tokens[k], line = line)
+
         elif (tokens[k].startswith('"') and tokens[k].endswith('"')) or (tokens[k].startswith("'") and tokens[k].endswith("'")):
             tokens[k] = token(type = tokentype.string, string_ = tokens[k], literal = tokens[k], line = line)
+
         elif tokens[k].lower() in bool_:
             tokens[k] = token(type = tokentype.boolean, string_ = tokens[k], literal = tokens[k], line = line)
+
         elif is_date(tokens[k]):
             tokens[k] = token(tokentype.date, string_ = tokens[k], literal = tokens[k], line = line)
+
         else:
             tokens[k] = token(type = tokentype.identifier, string_ = tokens[k], literal = tokens[k], line = line)
+            
 tokens.append(token(type = tokentype.eof, string_ = "EOF", literal = None, line = line))
 
 print(tokens)
