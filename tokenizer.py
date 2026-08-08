@@ -91,7 +91,9 @@ class tokentype(Enum):
     append = 69
     byref = 70
     byval = 71
-    eof = 72
+
+    constant_ = 72
+    eof = 73
 
 
 # class for tokens to hold data such as type, the value it holds, and if an error pops up, the line where it comes
@@ -132,7 +134,7 @@ inv_nospace = {'(': 'left_par', ')': 'right_par', '[': 'left_brkt', ']': 'right_
             '+': 'plus', '-': 'sub', '*': 'mul', '/': 'div', '^': 'pow', 'mod': 'mod_operate', 'div': 'div_operate', '=': 'eql', '<': 'less', '≤': 'less_eql', '>': 'more', '≥': 'more_eql', '<>': 'not_eql', '<-': 'arrow'}
 in_string = False
 
-file = 'DECLARE name : STRING \n name <- "Alice" \n IF index = 2 THEN \n status <- "passed" \n ENDIF' # test string
+file = '3+2*4' # test string
 
 # checking for number of newlines in the file to know which line an error popped up in by using arrays to store the location of the newline and the current line
 number_newline = 1
