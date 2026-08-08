@@ -28,3 +28,16 @@ Finished more helper functions, which are functions which make it easy for my pa
 the declaration function (DECLARE x : integer)
 the output function (OUTPUT "hello world")
 the input function (INPUT x)
+
+#### Day idk + 4
+Finished more functions-
+while loops
+subroutine calls
+assignments
++ made the output function better
+
+#### Day idk + 5
+Forgot to journal yday
+I began to implement pratt parsing, but then felt that to be too... eh? So I tried coming up with my own method using priority additions. Began implementing that today, but I'm kinda (very) unsure about this abstract syntax tree stuff and how to do things using it. 
+The priority addition thing works by keeping all tokens in a straight line with equal priority, and if it encounters a + or a * etc, it gives them a priority, which pushes them higher up the AST. it follows pemdas. After the AST is organized, I need to break it down and evaluate it, which I know how to do in my head, but I don't know how to implement it due to my lack of knowledge of AST.
+Current update on my method- what the program does is, for something like 2 + 3 * 4, it looks at the priority. * has more priority than +, so it looks at things immediately to the left and right, giving you 3 and 4. Now, the token * is replaced by 3 * 4, and the tokens 3 and 4 are removed. 

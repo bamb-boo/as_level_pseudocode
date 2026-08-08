@@ -16,15 +16,38 @@ assignment (done)
 output (done)
 input (done)
 
-if
-while
-repeat
-for
+if (done)
+while (done)
+repeat (done)
+for (done)
 
-add
-sub
-mul
-div
-pow
+add (done)
+sub (done)
+mul (done)
+div (done)
+pow (done)
 mod
 div
+
+and
+or
+not
+
+eql
+less
+less_eql
+more
+more_eql
+not_eql
+
+pratt parsing-
+main question- what is expected to be seen to the left of the token-
+left denotation (led)
+null denotation (nud)
+
+only ned-
+integers, reals, literals
+variables
+unary (-5 etc)
+
+update- never mind, i'm not going to use pratt parsing. i'm going to try and implement a method i thought of myself.
