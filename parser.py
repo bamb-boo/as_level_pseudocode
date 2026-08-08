@@ -126,14 +126,21 @@ class parser:
             raise SyntaxError("no datatype provided")
         
         return Constant(var.string_, datatype)
+    
     # to ASSIGN    
     def assignment(self):
         var = self.consume(tokentype.identifier)
         if self.consume(tokentype.arrow):
-            return Assignment(var.string_, self.next().string_)
+            branch = []
+            while True:
+                if not self.end() and self.tokens[self.current].string_ != "\n":
+                    branch.append(self.next().string_)
+                else:
+                    break
         else:
             raise SyntaxError("nothing to assign to")
-
+        return Assignment(var.string_, branch)
+    
     # to OUTPUT    
     def output_statement(self):
         self.consume(tokentype.output_)
