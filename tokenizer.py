@@ -20,80 +20,106 @@ class tokentype(Enum):
     sub = 10 # -
     mul = 11 # *
     div = 12 # /
-    pow = 13 # ^
-    mod_operate = 14 # MOD
-    div_operate = 15 # DIV
-    eql = 16 # =
-    less = 17 # <
-    less_eql = 18 # ≤
-    more = 19 # >
-    more_eql = 20 # ≥
-    not_eql = 21 # <>
-    arrow = 22 # <- or ←
+    mod_operate = 13 # MOD
+    div_operate = 14 # DIV
+    eql = 15 # =
+    less = 16 # <
+    less_eql = 17 # ≤
+    more = 18 # >
+    more_eql = 19 # ≥
+    not_eql = 20 # <>
+    arrow = 21 # <- or ←
 
-    integer = 23
-    real = 24
-    char = 25
-    string = 26
-    boolean = 27
-    date = 28
-    array = 29
+    integer = 22
+    real = 23
+    char = 24
+    string = 25
+    boolean = 26
+    date = 27
+    array = 28
 
-    declare = 30
-    constant = 31
-    identifier = 32
-    newline = 33
+    declare = 29
+    constant = 30
+    identifier = 31
+    newline = 32
 
-    and_ = 34
-    not_ = 35
-    or_ = 36
+    and_ = 33
+    not_ = 34
+    or_ = 35
 
-    if_ = 37
-    then_ = 38
-    else_ = 39
-    endif_ = 40
+    if_ = 36
+    then_ = 37
+    else_ = 38
+    endif_ = 39
 
-    for_ = 41
-    to_ = 42
-    step_ = 43
-    next_ = 44
+    for_ = 40
+    to_ = 41
+    step_ = 42
+    next_ = 43
 
-    while_ = 45
-    do_ = 46
-    endwhile = 47
+    while_ = 44
+    do_ = 45
+    endwhile = 46
 
-    repeat_ = 48
-    until_ = 49
+    repeat_ = 47
+    until_ = 48
 
-    case = 50
-    of = 51
-    otherwise = 52
-    endcase = 53
+    case = 49
+    of = 50
+    otherwise = 51
+    endcase = 52
 
-    input_ = 54
-    output_ = 55
+    input_ = 53
+    output_ = 54
 
-    procedure_ = 56
-    endprocedure_ = 57
+    procedure_ = 55
+    endprocedure_ = 56
 
-    call_ = 58
-    function_ = 59
-    returns_ = 60
-    return_ = 61
-    endfunction_ = 62
+    call_ = 57
+    function_ = 58
+    returns_ = 59
+    return_ = 60
+    endfunction_ = 61
 
-    openfile = 63
-    readfile = 64
-    writefile = 65
-    closefile = 66
-    read = 67
-    write = 68
-    append = 69
-    byref = 70
-    byval = 71
+    openfile = 62
+    readfile = 63
+    writefile = 64
+    closefile = 65
+    read = 66
+    write = 67
+    append = 68
+    byref = 69
+    byval = 70
 
-    constant_ = 72
-    eof = 73
+    int_ = 71
+    rand = 72
+    length = 73
+    right = 74
+    mid = 75
+    lcase = 76
+    ucase = 77
+
+    type_ = 78
+    endtype_ = 79
+    set_ = 80
+    define_ = 81
+    caret = 82
+
+    class_ = 83
+    endclass_ = 84
+    inherits = 85
+    super_ = 86
+    public_ = 87
+    private_ = 88
+    new_ = 89
+
+    seek = 90
+    getrecord = 91
+    putrecord = 92
+
+    dot = 93
+
+    eof = 94
 
 
 # class for tokens to hold data such as type, the value it holds, and if an error pops up, the line where it comes
@@ -114,24 +140,25 @@ spaces = []
 spacecheck = ""
 index = 0
 twolist = ["<-", "<>"] # reminder- the character "==" isn't in pseudocode
-onelist = ["(", ")", "[", "]", ",", "!", ":", "&", "+", "-", "*", "/", "^", "=", "<", ">", "≤", "≥", "←"]
+onelist = ["(", ")", "[", "]", ",", "!", ":", "&", "+", "-", "*", "/", "^", "=", "<", ">", "≤", "≥", "←", "."]
 
-int_ = re.compile(r'^[-+]?[0-9]+$')
+isint_ = re.compile(r'^[-+]?[0-9]+$')
 real_ = re.compile(r'[-+]?[0-9]*\.[0-9]{1,}$')
 str_ = re.compile(r'^[\s\S]*$')
-bool_ = ("FALSE", "TRUE")
+bool_ = ("false", "true")
+
 def is_date(date):
     try:
-        datetime.datetime.strptime(date, "%d-%m-%Y")
+        datetime.datetime.strptime(date, "%d/%m/%Y")
         return True
     except ValueError:
         return False
 
 # linking symbols with names and the dict's inverse)
-nospace = {"left_par" : "(", "right_par" : ")", "left_brkt" : "[", "right_brkt" : "]", "comma" : ",", "mark_exclam" :  "!", "colon" : ":","ampersand" : "&",
-           "plus" : "+", "sub" : "-", "mul" : "*", "div" : "/", "pow" : "^", "mod_operate" : "mod", "div_operate" : "div", "eql" : "=", "less" : "<", "less_eql" : "≤", "more" : ">", "more_eql" : "≥", "not_eql" : "<>", "arrow" : "<-"}
-inv_nospace = {'(': 'left_par', ')': 'right_par', '[': 'left_brkt', ']': 'right_brkt', ',': 'comma', '!': 'mark_exclam', ':': 'colon', '&': 'ampersand',
-            '+': 'plus', '-': 'sub', '*': 'mul', '/': 'div', '^': 'pow', 'mod': 'mod_operate', 'div': 'div_operate', '=': 'eql', '<': 'less', '≤': 'less_eql', '>': 'more', '≥': 'more_eql', '<>': 'not_eql', '<-': 'arrow'}
+nospace = {"left_par" : "(", "right_par" : ")", "left_brkt" : "[", "right_brkt" : "]", "comma" : ",", "mark_exclam" :  "!", "colon" : ":","ampersand" : "&", "caret" : "^", "dot" : ".",
+           "plus" : "+", "sub" : "-", "mul" : "*", "div" : "/", "mod_operate" : "mod", "div_operate" : "div", "eql" : "=", "less" : "<", "less_eql" : "≤", "more" : ">", "more_eql" : "≥", "not_eql" : "<>", "arrow" : "<-"}
+inv_nospace = {'(': 'left_par', ')': 'right_par', '[': 'left_brkt', ']': 'right_brkt', ',': 'comma', '!': 'mark_exclam', ':': 'colon', '&': 'ampersand', "^" : "caret", "." : "dot",
+            '+': 'plus', '-': 'sub', '*': 'mul', '/': 'div', 'mod': 'mod_operate', 'div': 'div_operate', '=': 'eql', '<': 'less', '≤': 'less_eql', '>': 'more', '≥': 'more_eql', '<>': 'not_eql', '<-': 'arrow'}
 in_string = False
 
 file = '3+2*4' # test string
@@ -187,8 +214,8 @@ while index < len(file):
             
 
         elif file[index] in onelist:
-            prev = (file[index - 1] == " ")
-            next = (file[index + 1] == " ")
+            prev = (index > 0 and file[index - 1] == " ")
+            next = (index < len(file) - 1 and file[index + 1] == " ")
 
             spacecheck = spacecheck + f" {file[index]} "
             index = index + 1
@@ -207,7 +234,7 @@ while index < len(file):
     else:
         if file[index] == " ":
             spaces.append(token_index)
-            spacecheck = spacecheck + "s"
+            spacecheck = spacecheck + "\x00"
         else:
             spacecheck = spacecheck + file[index]
         index = index + 1
@@ -254,6 +281,7 @@ for i in tokentype.__members__:
 
 # beeg thing
 for k in range(len(tokens)):
+    tokens[k] = tokens[k].replace("\x00", " ")
     ltoken = tokens[k].lower()
     if ltoken in underscore:
         ltoken = f"{ltoken}_"
@@ -280,7 +308,7 @@ for k in range(len(tokens)):
         # changing it into a list for easier workability
         list_inv_nospace = list(inv_nospace)
         for i in range(len(list_inv_nospace)):
-            if list_inv_nospace[i] == tokens[k]:
+            if list_inv_nospace[i] == tokens[k] and not is_date(tokens[k]):
                 matched = True
                 name = inv_nospace[list_inv_nospace[i]]
                 break
@@ -299,17 +327,17 @@ for k in range(len(tokens)):
         if tokens[k] == "\n":
             tokens[k] = token(type = tokentype.newline, string_ = "\\n", literal = None, line = line)
 
-        elif int_.match(tokens[k]):
+        elif isint_.match(tokens[k]):
             tokens[k] = token(type = tokentype.integer, string_ = tokens[k], literal = int(tokens[k]), line = line)
 
         elif real_.match(tokens[k]):
             tokens[k] = token(type = tokentype.real, string_ = tokens[k], literal = float(tokens[k]), line = line)
         # is it a string?
-        elif ((tokens[k].startswith('"') and tokens[k].endswith('"')) or (tokens[k].startswith("'") and tokens[k].endswith("'"))) and len(tokens[k]) == 3:
-            tokens[k] = token(type = tokentype.char, string_ = tokens[k], literal = tokens[k], line = line)
+        elif (tokens[k].startswith("'") and tokens[k].endswith("'")) and len(tokens[k]) == 3:
+            tokens[k] = token(type = tokentype.char, string_ = tokens[k], literal = tokens[k][1], line = line)
 
-        elif (tokens[k].startswith('"') and tokens[k].endswith('"')) or (tokens[k].startswith("'") and tokens[k].endswith("'")):
-            tokens[k] = token(type = tokentype.string, string_ = tokens[k], literal = tokens[k], line = line)
+        elif (tokens[k].startswith('"') and tokens[k].endswith('"')):
+            tokens[k] = token(type = tokentype.string, string_ = tokens[k], literal = tokens[k][1:-1], line = line)
 
         elif tokens[k].lower() in bool_:
             tokens[k] = token(type = tokentype.boolean, string_ = tokens[k], literal = tokens[k], line = line)

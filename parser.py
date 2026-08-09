@@ -1,18 +1,23 @@
+# importing libs
 import re
 from enum import StrEnum
 from tokenizer import token, tokentype
 
 class parser:
+    # properties of self
     def __init__(self, tokens):
         self.tokens = tokens
         self.current = 0
 
+    # defining helper functions to reduce code length and to make it easier
+    # helper function to see if analysis has begun/current token is the 1st (or 0th) token
     def beginning(self):
         if self.current == 0:
             return True
         else:
             return False
-    
+
+    # helper function to see if the current token is the last token, which is eof (first line is to see if the current token is greater than the number of tokens)
     def end(self):
         if self.current >= len(self.tokens):
             return True
@@ -21,18 +26,20 @@ class parser:
                 return True
             else:
                 return False
-            
+
+    # helper function to get the prior token
     def previous(self):
         if self.beginning() == True:
             return self.tokens[0]
         return self.tokens[self.current - 1]
-        
+
+    # helper function to get the next token after reading it and advancing
     def next(self):
         if self.end() == False:
             self.current = self.current + 1
         return self.previous()
 
-
+    # helper function to check if the token is of a certain datatype without advancing
     def check(self, token_type):
         if self.end() == False:
             if self.tokens[self.current].type == token_type:
@@ -41,6 +48,7 @@ class parser:
         else:
             return False
 
+    # helper function to check if the token is of a datatype and advances if it matches
     def match(self, *token_type):
         for i in token_type:
             if self.check(i) == True:
@@ -48,17 +56,19 @@ class parser:
                 return True
         return False
 
+    # consumes the next token
     def consume(self, token_type):
         if self.check(token_type):
             return self.next()
 
         raise SyntaxError(f"line {self.tokens[self.current].line}- got {self.tokens[self.current].string_}")
 
+    # to use the functions declares later on such as declare, if_loop etc. this will be used in the interpreter later on
     def get_statement(self):
         # add more as i code more parsing rules
         if self.check(tokentype.declare):
             return self.declaration()
-        elif self.check(tokentype.constant_):
+        elif self.check(tokentype.constant):
             return self.constant()
         elif self.check(tokentype.output_):
             return self.output_statement()
@@ -105,7 +115,7 @@ class parser:
     
     # to ASSIGN a CONSTANT
     def constant(self):
-        self.consume(tokentype.constant_)
+        self.consume(tokentype.constant)
         var = self.consume(tokentype.identifier)
         self.consume(tokentype.arrow)
 
@@ -121,7 +131,6 @@ class parser:
             datatype = "boolean"
         elif self.match(tokentype.date):
             datatype = "date"
-        
         else:
             raise SyntaxError("no datatype provided")
         
@@ -152,8 +161,8 @@ class parser:
                     branch.append(x.string_)
             else:
                 break
-
         return Output(branch)
+    
     # to INPUT
     def input_statement(self):
         self.consume(tokentype.input_)
@@ -299,17 +308,21 @@ class parser:
 
         return Call(subroutine.string_, parameters)
 
+# for math expressions
 class expression:
-    def __init__(self, token_type, value, priority = 0):
+    def __init__(self, token_type = None, value = None, priority = 0, left = None, right = None):
         self.type = token_type
         self.value = value
         self.priority = priority
+        self.left = left
+        self.right = right
         self.prev = None
         self.next = None
 
     def __repr__(self):
         return f"{self.value}"
-    
+
+# priority for operations (PEMDAS)
 def priority(tokens):
 
     base = {
@@ -324,10 +337,11 @@ def priority(tokens):
 
     nodes = []
     current = 0
-
     for i in tokens:
+        #adds priority for left bracket
         if i.type == tokentype.left_brkt:
             current = current + 4
+        # subtracts priority for right bracket
         elif i.type == tokentype.right_brkt:
             current = current - 4
         elif i.type in base:
@@ -346,7 +360,7 @@ def priority(tokens):
 
 def calculate(nodes):
     if len(nodes) == 1:
-        return nodes[0].value
+        return nodes[0]
 
     while True:
         high = None
@@ -363,11 +377,12 @@ def calculate(nodes):
         left = high.prev
         right = high.next
 
-        combined = expression(left = left.value, right = right.value, high = high.value)
+        combined = expression(token_type = high.type, value = high.value, priority = 0, left = left.value, right = right.value)
         high.value = combined
         high.priority = 0
         high.prev = left.prev
 
+        # main token has left token's value and right token's value
         if left.prev:
             left.prev.next = high
 
@@ -375,8 +390,9 @@ def calculate(nodes):
         if right.next:
             right.next.prev = high
 
+        # values of left and right are put into the main token, so left and right are not needed, and because of that, removed
         nodes.remove(left)
         nodes.remove(right)
 
-    return nodes[0].value
+    return nodes[0]
         
