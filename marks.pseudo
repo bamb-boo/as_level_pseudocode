@@ -1,0 +1,3 @@
+FOR index <- 1 TO 10
+    OUTPUT index
+NEXT index

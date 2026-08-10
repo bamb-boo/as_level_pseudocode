@@ -3,6 +3,64 @@ import re
 from enum import StrEnum
 from tokenizer import token, tokentype
 
+class Declaration:
+    def __init__(self, name, datatype):
+        self.name = name
+        self.datatype = datatype
+
+class Constant:
+    def __init__(self, name, datatype):
+        self.name = name
+        self.datatype = datatype
+
+class Assignment:
+    def __init__(self, var, branch):
+        self.var = var
+        self.branch = branch
+
+class Output:
+    def __init__(self, branch):
+        self.branch = branch
+
+class Input:
+    def __init__(self, var):
+        self.var = var
+
+class If_loop:
+    def __init__(self, condition, branch, else_loop):
+        self.condition = condition
+        self.branch = branch
+        self.else_loop = else_loop
+
+class While_loop:
+    def __init__(self, condition, branch):
+        self.condition = condition
+        self.branch = branch
+
+class For_loop:
+    def __init__(self, index, value1, value2, step, branch):
+        self.index = index
+        self.value1 = value1
+        self.value2 = value2
+        self.step = step
+        self.branch = branch
+
+class Repeat_loop:
+    def __init__(self, branch, condition):
+        self.branch = branch
+        self.condition = condition
+
+class CaseOf:
+    def __init__(self, identifier, branch):
+        self.identifier = identifier
+        self.branch = branch
+
+class Call:
+    def __init__(self, subroutine, parameters):
+        self.subroutine = subroutine
+        self.parameters = parameters
+        
+
 class parser:
     # properties of self
     def __init__(self, tokens):
@@ -139,7 +197,7 @@ class parser:
     # to ASSIGN    
     def assignment(self):
         var = self.consume(tokentype.identifier)
-        if self.consume(tokentype.arrow):
+        if self.match(tokentype.arrow):
             branch = []
             while True:
                 if not self.end() and self.tokens[self.current].string_ != "\n":
@@ -332,17 +390,18 @@ def priority(tokens):
     tokentype.mul: 2,
     tokentype.div: 2,
 
-    tokentype.pow: 3
+    tokentype.mod_operate: 2,
+    tokentype.div_operate: 2
     }
 
     nodes = []
     current = 0
     for i in tokens:
         #adds priority for left bracket
-        if i.type == tokentype.left_brkt:
+        if i.type == tokentype.left_par:
             current = current + 4
         # subtracts priority for right bracket
-        elif i.type == tokentype.right_brkt:
+        elif i.type == tokentype.right_par:
             current = current - 4
         elif i.type in base:
             priority = base[i.type] + current
@@ -371,14 +430,18 @@ def calculate(nodes):
             if i.priority > max and i.priority > 0:
                 max = i.priority
                 high = i
+
         if high == None:
             break
 
         left = high.prev
         right = high.next
 
-        combined = expression(token_type = high.type, value = high.value, priority = 0, left = left.value, right = right.value)
-        high.value = combined
+        if not left or not right:
+            raise SyntaxError(f"incomplete expression near {high.value}")
+
+        high.left = left
+        high.right = right
         high.priority = 0
         high.prev = left.prev
 

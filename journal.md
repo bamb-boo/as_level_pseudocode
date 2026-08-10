@@ -47,4 +47,10 @@ Just realized I messed up a lot of functions-- some of them repeated, some of th
 Right now, I never write comments, so it is hard for me to just look at a piece of code and realize what it does, and it's structure. In this project, the structure of a variable is very important because only the structure dictates how we can use and manipulate the variable. An example would be tokens[k]. Unless one knows the structure of tokens[k], realizing how to use it is quite hard. On smaller projects with less variables, it is easier to remember, but for this project, due to the number of variables, and the presence of similar variables (eg- int and int_. int is for integer while declaration and int_ is to convert a real into an integer.) makes it even more complicated. Also, it's hard to know what else to do due to the same reason-- there are too many functions to satisfy. I need to re-write the functions which I've taken care of in notes.md. 
 The parser.py is quite a mess right now. I might need to update it and make it a bit more ordered before going to the actual interpretor, but that depends on time.
 Things like LENGTH and RIGHT and UCASE need to be implemented.
-Oh, and also I need a way to calculate expressions of equal priority and for more than 3 in a token
+Oh, and also I need a way to calculate expressions of equal priority and for more than 3 in a token.
+
+#### Day idk + 7
+Today was incredibly tiring. I had a lot of work at school, and work to do after coming back home too. Working on this project was quite more tiring since I'm kind of unsure how to proceed too... 
+But today I just wrote a small function which will help me run a .pseudo file with the pseudocode gives it's file path. I was able to tokenize the code in the file, which was fun. Spent some time trying to find bugs and asking help from AI to help me find bugs. And then since it told me I had to write classes for each of the functions (functions such as DECLARE and ASSIGN etc) (note- I knew I had to do this, but forgot), so spent some time doing that.
+Oh and also I just remembered- I meddled more with my expression parser to fix some stuff. 
+I need to implement things like LENGTH and RIGHT and UCASE. Don't forget.
