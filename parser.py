@@ -1,6 +1,7 @@
 # importing libs
 import re
 from enum import StrEnum
+import random as r
 from tokenizer import token, tokentype
 
 class Declaration:
@@ -60,6 +61,37 @@ class Call:
         self.subroutine = subroutine
         self.parameters = parameters
         
+class Length:
+    def __init__(self, str_branch):
+        self.str_branch = str_branch
+
+class Integer:
+    def __init__(self, branch):
+        self.branch = branch
+
+class Random:
+    def __init__(self, var):
+        self.var = var
+
+class Right:
+    def __init__(self, var, length):
+        self.var = var
+        self.length = length
+
+class Mid:
+    def __init__(self, var, place, length):
+        self.var = var
+        self.place = place
+        self.length = length
+
+class Lcase:
+    def __init__(self, var):
+        self.var = var
+
+class Ucase:
+    def __init__(self, var):
+        self.var = var
+
 
 class parser:
     # properties of self
@@ -365,6 +397,80 @@ class parser:
         parameters = " ".join(branch)
 
         return Call(subroutine.string_, parameters)
+
+    def length_(self):
+        self.consume(tokentype.length)
+        self.consume(tokentype.left_par)
+        branch = []
+        i = 0
+        while True:
+            if self.tokens[self.current + i].type != tokentype.right_par:
+                branch.append(self.tokens[self.current + i].string_)
+                i = i + 1
+
+            else:
+                break
+        self.current = self.current + (i + 1)
+        str_branch = " ".join(branch)
+        return Length(str_branch)
+
+    def integer_(self):
+        self.consume(tokentype.int_)
+        self.consume(tokentype.left_par)
+        branch = ""
+        while True:
+            if self.next() != tokentype.right_par:
+                branch = branch + self.tokens[self.current].string_
+            else:
+                break
+
+        branch = float(branch)
+        branch = int(branch)
+        return Integer(branch)
+
+    def rand_(self):
+        self.consume(tokentype.rand)
+        self.consume(tokentype.left_par)
+        var = int(self.consume(tokentype.integer).value)
+        self.consume(tokentype.left_par)
+        return Random(var)
+
+    def right_(self):
+        self.consume(tokentype.right)
+        self.consume(tokentype.left_par)
+        var = self.next()
+        self.consume(tokentype.comma)
+        length = self.consume(tokentype.integer).string_
+        self.consume(tokentype.right_par)
+        return Right(var, length)
+
+    def mid_(self):
+        self.consume(tokentype.mid)
+        self.consume(tokentype.left_par)
+        var = self.next()
+        self.consume(tokentype.comma)
+        place = self.consume(tokentype.integer)
+        self.consume(tokentype.comma)
+        length = self.consume(tokentype.integer)
+        self.consume(tokentype.right_par)
+        return Mid(var, place, length)
+
+    def lcase_(self):
+        self.consume(tokentype.lcase)
+        self.consume(tokentype.left_par)
+        var = self.next()
+        self.consume(tokentype.right_par)
+        return Lcase(var)
+
+    def ucase_(self):
+        self.consume(tokentype.ucase)
+        self.consume(tokentype.left_par)
+        var = self.next()
+        self.consume(tokentype.right_par)
+        return Ucase(var)
+
+
+        
 
 # for math expressions
 class expression:

@@ -54,3 +54,7 @@ Today was incredibly tiring. I had a lot of work at school, and work to do after
 But today I just wrote a small function which will help me run a .pseudo file with the pseudocode gives it's file path. I was able to tokenize the code in the file, which was fun. Spent some time trying to find bugs and asking help from AI to help me find bugs. And then since it told me I had to write classes for each of the functions (functions such as DECLARE and ASSIGN etc) (note- I knew I had to do this, but forgot), so spent some time doing that.
 Oh and also I just remembered- I meddled more with my expression parser to fix some stuff. 
 I need to implement things like LENGTH and RIGHT and UCASE. Don't forget.
+
+#### Day idk + 8
+Today was quite good-- I wrapped up some functions. However, while writing those functions, I realized I needed a way to keep track of quotations, and because of that I also had to include quotation marks (' and "). Can't believe I didn't have them till now haha. Yeah, so after implementing the quotation marks, I also finished functions which required quotes such as UCASE, LCASE, MID, RIGHT etc. After completing that I jut added the new functions to their respective class (what I mentioned yesterday). After this, I'm *kind of* unsure what to do besides going to build the interpreter.
+Update- I just remembered. I have to add all the functions to the get_statement() loop.

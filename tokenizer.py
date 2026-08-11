@@ -7,7 +7,7 @@ import datetime
 #setting up class for tokens
 @unique
 class tokentype(Enum):
-    left_par = 1 # (
+    left_par = 1 # ( 
     right_par = 2 # )
     left_brkt = 3 # [
     right_brkt = 4 # ]
@@ -38,44 +38,45 @@ class tokentype(Enum):
     date = 27
     array = 28
 
-    declare = 29
-    constant = 30
-    identifier = 31
-    newline = 32
+    declare = 29 # done
+    constant = 30 # done
+    identifier = 31 # done
+    newline = 32 # done
 
     and_ = 33
     not_ = 34
     or_ = 35
 
-    if_ = 36
-    then_ = 37
-    else_ = 38
-    endif_ = 39
+    if_ = 36 # done
+    then_ = 37 # done
+    else_ = 38 # done
+    endif_ = 39 # done
 
-    for_ = 40
-    to_ = 41
-    step_ = 42
-    next_ = 43
+    for_ = 40 # done
+    to_ = 41 # done
+    step_ = 42 # done
+    next_ = 43 # done
 
-    while_ = 44
-    do_ = 45
-    endwhile = 46
+    while_ = 44 # done
+    do_ = 45 # done
+    endwhile = 46 # done
 
-    repeat_ = 47
-    until_ = 48
+    repeat_ = 47 # done
+    until_ = 48 # done
 
-    case = 49
-    of = 50
-    otherwise = 51
-    endcase = 52
+    case = 49 # done
+    of = 50 # done
+    otherwise = 51 # done
+    endcase = 52 # done
 
-    input_ = 53
-    output_ = 54
+    input_ = 53 # done
+    output_ = 54 # done
 
     procedure_ = 55
     endprocedure_ = 56
 
-    call_ = 57
+    call_ = 57 # done
+
     function_ = 58
     returns_ = 59
     return_ = 60
@@ -91,11 +92,11 @@ class tokentype(Enum):
     byref = 69
     byval = 70
 
-    int_ = 71
-    rand = 72
-    length = 73
-    right = 74
-    mid = 75
+    int_ = 71 # done
+    rand = 72 # done
+    length = 73 # done
+    right = 74 # done
+    mid = 75 # done
     lcase = 76
     ucase = 77
 
@@ -200,15 +201,11 @@ def tokenize(path):
                 index = index + 1
             continue
 
-        if file[index] == "'" or file[index] == "\"":
-            if in_string == False:
-                in_string = True
-                spacecheck = spacecheck + file[index]
-                index = index + 1
-            else:
-                in_string = False
-                spacecheck = spacecheck + file[index]
-                index = index + 1
+        quotes = ["'", "'"]
+        if file[index] in quotes:
+            in_string = not in_string
+            spacecheck = spacecheck + file[index]
+            index = index + 1
             continue
 
         if in_string == False:    
@@ -344,22 +341,34 @@ def tokenize(path):
 
             elif real_.match(tokens[k]):
                 tokens[k] = token(type = tokentype.real, string_ = tokens[k], literal = float(tokens[k]), line = line)
-            # is it a string?
-            elif (tokens[k].startswith("'") and tokens[k].endswith("'")) and len(tokens[k]) == 3:
-                tokens[k] = token(type = tokentype.char, string_ = tokens[k], literal = tokens[k][1], line = line)
-
-            elif (tokens[k].startswith('"') and tokens[k].endswith('"')):
-                tokens[k] = token(type = tokentype.string, string_ = tokens[k], literal = tokens[k][1:-1], line = line)
-
-            elif tokens[k].lower() in bool_:
-                tokens[k] = token(type = tokentype.boolean, string_ = tokens[k], literal = tokens[k], line = line)
-
-            elif is_date(tokens[k]):
-                tokens[k] = token(tokentype.date, string_ = tokens[k], literal = tokens[k], line = line)
 
             else:
-                tokens[k] = token(type = tokentype.identifier, string_ = tokens[k], literal = tokens[k], line = line)
-                
+                starts = ""
+                for i in quotes:
+                    if tokens[k].startswith(i):
+                        starts = i
+                        break
+
+                ends = ""
+                for i in quotes:
+                    if tokens[k].endswith(i):
+                        ends = i
+                        break
+                if starts == ends and starts != "":
+                    if len(tokens[k]) == 3:
+                        tokens[k] = token(type = tokentype.char, string_ = tokens[k], literal = tokens[k][1], line = line)
+                    else:
+                        tokens[k] = token(type = tokentype.string, string_ = tokens[k], literal = tokens[k][1:-1], line = line)
+
+                elif tokens[k].lower() in bool_:
+                    tokens[k] = token(type = tokentype.boolean, string_ = tokens[k], literal = tokens[k], line = line)
+
+                elif is_date(tokens[k]):
+                    tokens[k] = token(tokentype.date, string_ = tokens[k], literal = tokens[k], line = line)
+
+                else:
+                    tokens[k] = token(type = tokentype.identifier, string_ = tokens[k], literal = tokens[k], line = line)
+                    
     tokens.append(token(type = tokentype.eof, string_ = "EOF", literal = None, line = line))
 
     print(tokens)
