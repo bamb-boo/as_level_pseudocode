@@ -174,10 +174,24 @@ class parser:
             return self.repeat_loop()
         elif self.check(tokentype.case):
             return self.case_of()
-        elif self.check(tokentype.identifier):
-            return self.assignment()
         elif self.check(tokentype.call_):
             return self.call_subroutine()
+        elif self.check(tokentype.length):
+            return self.length_()
+        elif self.check(tokentype.integer):
+            return self.integer_()
+        elif self.check(tokentype.rand):
+            return self.rand_()
+        elif self.check(tokentype.right):
+            return self.right_()
+        elif self.check(tokentype.mid):
+            return self.mid()
+        elif self.check(tokentype.lcase):
+            return self.lcase_()
+        elif self.check(tokentype.ucase):
+            return self.ucase_()
+        elif self.check(tokentype.identifier):
+                return self.assignment()
 
     # to DECLARE    
     def declaration(self):
@@ -432,13 +446,13 @@ class parser:
         self.consume(tokentype.rand)
         self.consume(tokentype.left_par)
         var = int(self.consume(tokentype.integer).value)
-        self.consume(tokentype.left_par)
+        self.consume(tokentype.right_par)
         return Random(var)
 
     def right_(self):
         self.consume(tokentype.right)
         self.consume(tokentype.left_par)
-        var = self.next()
+        var = self.next().string_
         self.consume(tokentype.comma)
         length = self.consume(tokentype.integer).string_
         self.consume(tokentype.right_par)
