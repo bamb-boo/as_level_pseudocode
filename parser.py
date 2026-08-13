@@ -92,6 +92,11 @@ class Ucase:
     def __init__(self, var):
         self.var = var
 
+class Function_def:
+    def __init__(self, var, returning, body):
+        self.var = var
+        self.returnong = returning
+        self.body = body
 
 class parser:
     # properties of self
@@ -190,9 +195,17 @@ class parser:
             return self.lcase_()
         elif self.check(tokentype.ucase):
             return self.ucase_()
+        elif self.check(tokentype.function_):
+            return self.function__()
         elif self.check(tokentype.identifier):
                 return self.assignment()
 
+    def parse(self):
+        nodes = []
+        while not self.end():
+            value = self.get_statement()
+            nodes.append(value)
+        return nodes
     # to DECLARE    
     def declaration(self):
         self.consume(tokentype.declare)
@@ -445,7 +458,7 @@ class parser:
     def rand_(self):
         self.consume(tokentype.rand)
         self.consume(tokentype.left_par)
-        var = int(self.consume(tokentype.integer).value)
+        var = int(self.consume(tokentype.integer).string_)
         self.consume(tokentype.right_par)
         return Random(var)
 
@@ -482,10 +495,37 @@ class parser:
         var = self.next()
         self.consume(tokentype.right_par)
         return Ucase(var)
+    
+    def function__(self):
+        self.consume(tokentype.function_)
+        var = self.consume(tokentype.identifier).string_
+        params = []
+        self.consume(tokentype.left_par)
+        while True:
+            if self.next().type != tokentype.right_par:
+                params.append(self.next())
+                self.consume(tokentype.colon)
+                params.appens(self.next())
+                if self.next().type == tokentype.comma:
+                    self.consume(tokentype.comma)
+            else:
+                break
+        self.consume(tokentype.right_par)
+        self.consume(tokentype.returns_)
+        returning = self.consume(tokentype.identifier)
+        body = []
+        while not self.check(tokentype.endfunction_):
+            if self.next().type == tokentype.newline:
+                self.next()
+                continue
+            statement = self.get_statement()
+            body.append(statement)
+        self.consume(tokentype.endfunction_)
+        return Function_def(var, returning, body)
 
+    def procedure__(self):
 
-        
-
+    def 
 # for math expressions
 class expression:
     def __init__(self, token_type = None, value = None, priority = 0, left = None, right = None):

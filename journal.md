@@ -61,3 +61,9 @@ Update- I just remembered. I have to add all the functions to the get_statement(
 
 #### Day idk + 9
 Haywire. I didn't know what to exactly do for the interpreter, so whipped up some code which may or may not work-- haven't tested it out yet. The interpreter is to look at the broken down tokens (from tokenizer.py) and, using the respective parsing function (in parser.py), to give the final output. This is the stage where all the action occurs. I didn't know how code the interpreter for functions like the loops, so I kept that aside. I also worked on coding the function in parser.py. I have an idea of how we can store all the body text, but my main worry is that things such as indentation may not be captured. Guess I need to test to find out! Indentation should be captured for things like loops. After coding the function, I tried to do the same for the procedure before realizing that a procedure can have either parameters or have no parameters at all. Because of that I need to verify the existence of paramters before proceeding further. May do that tomorrow.
+
+#### Day idk + 10
+Asked my cs teacher for some tips on how to improve and she suggested some changes which I implemented. 
+Coded the loops in the interpreter. It was kind of challenging to implement them because of my vague understanding of classes, but I used help from my teacher to code it. 
+Update- My teacher just made me realize that the self.check() function is in parser.py, and not here. I need to switch methods to identify datatype, or I need to see if I can use the same function.
+Second update- teacher told me about the function isinstant(). I can use that to compare datatypes. 

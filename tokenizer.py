@@ -97,8 +97,8 @@ class tokentype(Enum):
     length = 73 # done
     right = 74 # done
     mid = 75 # done
-    lcase = 76
-    ucase = 77
+    lcase = 76 # done
+    ucase = 77 # done
 
     type_ = 78
     endtype_ = 79
