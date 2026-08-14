@@ -95,7 +95,7 @@ class Ucase:
 class Function_def:
     def __init__(self, var, returning, body):
         self.var = var
-        self.returnong = returning
+        self.returning = returning
         self.body = body
 
 class parser:
@@ -167,6 +167,8 @@ class parser:
             return self.constant()
         elif self.check(tokentype.output_):
             return self.output_statement()
+        elif self.check(tokentype.identifier):
+            return self.assignment()
         elif self.check(tokentype.input_):
             return self.input_statement()
         elif self.check(tokentype.if_):
@@ -190,26 +192,47 @@ class parser:
         elif self.check(tokentype.right):
             return self.right_()
         elif self.check(tokentype.mid):
-            return self.mid()
+            return self.mid_()
         elif self.check(tokentype.lcase):
             return self.lcase_()
         elif self.check(tokentype.ucase):
             return self.ucase_()
         elif self.check(tokentype.function_):
             return self.function__()
-        elif self.check(tokentype.identifier):
-                return self.assignment()
+        else:
+            self.next()
+            return None
 
     def parse(self):
         nodes = []
         while not self.end():
+            if self.check(tokentype.newline):
+                self.next()
+                continue
+
             value = self.get_statement()
-            nodes.append(value)
+            if value is not None:
+                nodes.append(value)
         return nodes
+    
     # to DECLARE    
     def declaration(self):
+        self.next()  # Consume DECLARE
+        var = self.tokens[self.current]
+        self.next()  # Consume variable name
+        
+        if self.check(tokentype.colon):
+            self.next()  # Consume :
+            
+        datatype = self.tokens[self.current]
+        self.next()  # Consume datatype (INTEGER, STRING, etc.)
+        
+        # DO NOT consume the newline here. Let parse() handle it.
+        return Declaration(var, datatype)
+    '''
+    def declaration(self):
         self.consume(tokentype.declare)
-        var = self.consume(tokentype.identifier)
+        var = self.tokens[self.current]
         self.consume(tokentype.colon)
 
         if self.match(tokentype.integer):
@@ -229,6 +252,7 @@ class parser:
             raise SyntaxError("no datatype provided")
 
         return Declaration(var.string_, datatype)
+        '''
     
     # to ASSIGN a CONSTANT
     def constant(self):
@@ -255,30 +279,45 @@ class parser:
     
     # to ASSIGN    
     def assignment(self):
-        var = self.consume(tokentype.identifier)
-        if self.match(tokentype.arrow):
-            branch = []
-            while True:
-                if not self.end() and self.tokens[self.current].string_ != "\n":
-                    branch.append(self.next().string_)
-                else:
-                    break
-        else:
-            raise SyntaxError("nothing to assign to")
-        return Assignment(var.string_, branch)
+        # var = self.consume(tokentype.identifier)
+        var = self.tokens[self.current]
+        self.next()
+
+        if self.check(tokentype.arrow):
+            self.next()
+
+        branch = []
+        while not self.check(tokentype.newline) and not self.check(tokentype.eof):
+            branch.append(self.tokens[self.current])
+            self.next()
+
+        if len(branch) == 1:
+            branch = branch[0]
+
+        return Assignment(var, branch)
     
     # to OUTPUT    
     def output_statement(self):
-        self.consume(tokentype.output_)
+        self.next()
+        # self.consume(tokentype.output_)
         branch = []
-        while True:
+        while not self.check(tokentype.newline) and not self.check(tokentype.eof):
+            branch.append(self.tokens[self.current])
+            self.next()
+
+        if len(branch) == 1:
+            branch = branch[0]
+
+        return Output(branch)
+    
+        ''' while True:
             if self.tokens[self.current].string_ != "\n":
                 x = self.next()
                 if x.string_ != ",":
                     branch.append(x.string_)
             else:
                 break
-        return Output(branch)
+        return Output(branch)'''
     
     # to INPUT
     def input_statement(self):
@@ -505,7 +544,7 @@ class parser:
             if self.next().type != tokentype.right_par:
                 params.append(self.next())
                 self.consume(tokentype.colon)
-                params.appens(self.next())
+                params.append(self.next())
                 if self.next().type == tokentype.comma:
                     self.consume(tokentype.comma)
             else:
@@ -523,9 +562,10 @@ class parser:
         self.consume(tokentype.endfunction_)
         return Function_def(var, returning, body)
 
-    def procedure__(self):
+    # def procedure__(self):
 
-    def 
+    # def 
+
 # for math expressions
 class expression:
     def __init__(self, token_type = None, value = None, priority = 0, left = None, right = None):

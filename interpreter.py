@@ -1,5 +1,6 @@
 from parser import Declaration, Constant, Assignment, Output, Input, If_loop, While_loop, For_loop, Repeat_loop, CaseOf, Call, Length, Integer, Random, Right, Mid, Lcase, Ucase
 import random
+from tokenizer import token
 from typing import Final
 
 class interpreter:
@@ -7,6 +8,14 @@ class interpreter:
         self.ast_nodes = ast_nodes
         self.variables = {}
 
+    def get_str(self, val):
+        if isinstance(val, token):
+            return val.string_
+        if val is not None:
+            return str(val)
+        else:
+            return ""
+        
     def eval(self, expression):
         if isinstance(expression, str):
             if expression in self.variables:
@@ -19,33 +28,45 @@ class interpreter:
                 except ValueError:
                     return expression
         return expression
+    
+    def run(self):
+        for node in self.ast_nodes:
+            if node is not None:
+                self.resolve(node)
         
     def resolve(self, node):
         if isinstance(node, Declaration):
-            self.variables[node.var.string_] = node.datatype
+            var_name = self.get_str(node.name)
+            self.variables[var_name] = node.datatype
 
         elif isinstance(node, Constant):
-            self.variables[node.var.string_] = Final[node.datatype]
+            var_name = self.get_str(node.name)
+            self.variables[var_name] = Final[node.datatype]
 
         elif isinstance(node, Assignment):
-            if self.check(node.branch, list):
-                var_str = " ".join(node.branch)
-            else:
-                node.branch()
+            var_name = self.get_str(node.var)
 
-            self.variables[node.var] = self.eval(var_str)
+            if isinstance(node.branch, list):
+                    var_str = " ".join([self.get_str(i) for i in node.branch])
+            else:
+                var_str = self.get_str(node.branch)
+            self.variables[var_name] = self.eval(var_str)
 
         elif isinstance(node, Output):
             eval = []
-            for i in node.branch:
-                eval.append(str(self.eval(i)))
+            if isinstance(node.branch, list):
+                for i in node.branch:
+                    eval.append(str(self.eval(self.get_str(i))))
+            else:
+                eval.append(str(self.eval(self.get_str(node.branch))))
             print(" ".join(eval))
 
         elif isinstance(node, Input):
-            self.variables[node.var] = self.eval(input())
+            var_name = self.get_str(node.var)
+            self.variables[var_name] = self.eval(input())
 
         elif isinstance(node, If_loop):
-            if self.eval(node.condition):
+            if self.eval(self.get_str(node.condition)):
                 for i in node.branch:
                     self.resolve(i)
             elif node.else_loop:
@@ -53,7 +74,7 @@ class interpreter:
                     self.resolve(i)
 
         elif isinstance(node, While_loop):
-            while self.eval(node.condition):
+            while self.eval(self.get_str(node.condition)):
                 for i in node.branch:
                     self.resolve(i)
 
@@ -101,17 +122,14 @@ class interpreter:
             return random.randrange(int(self.eval(node.var)))
 
         elif isinstance(node, Right):
-            var = str(self.eval(node.var))
-            length = str(self.eval(node.length))
-            if length >= len(var):
-                return node.var
-            else:
-                return node.var[-node.length:]
+            var = str(self.eval(self.get_str(node.var)))
+            length = str(self.eval(self.get_str(node.length)))
+            return var[-length:] if length < len(var) else var
 
         elif isinstance(node, Mid):
-            var = str(self.eval(node.var))
-            place = str(self.eval(node.place)) - 1
-            length = str(self.eval(node.length))
+            var = str(self.eval(self.get_str(node.var)))
+            place = str(self.eval(self.get_str(node.place)))
+            length = str(self.eval(self.get_str(node.length)))
             return var[place - 1:place - 1 + length]
 
         elif isinstance(node, Lcase):
@@ -119,3 +137,19 @@ class interpreter:
 
         elif isinstance(node, Ucase):
             return str(self.eval(node.var)).upper()
+
+def get_string(self, val):
+    if isinstance(val, token):
+        return val.string_
+    if val is not None:
+        return str(val)
+    else:
+        return ""
+
+def get_string(self, val):
+    if isinstance(val, token):
+        return val.string_
+    if val is not None:
+        return str(val)
+    else:
+        return ""

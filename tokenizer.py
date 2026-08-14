@@ -372,6 +372,7 @@ def tokenize(path):
     tokens.append(token(type = tokentype.eof, string_ = "EOF", literal = None, line = line))
 
     print(tokens)
+    return tokens
 
 if __name__ == "__main__":
     path = r"C:\Users\sram7\Downloads\as_level_pseudocode-main\as_level_pseudocode-main\marks.pseudo"

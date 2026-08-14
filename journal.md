@@ -67,3 +67,7 @@ Asked my cs teacher for some tips on how to improve and she suggested some chang
 Coded the loops in the interpreter. It was kind of challenging to implement them because of my vague understanding of classes, but I used help from my teacher to code it. 
 Update- My teacher just made me realize that the self.check() function is in parser.py, and not here. I need to switch methods to identify datatype, or I need to see if I can use the same function.
 Second update- teacher told me about the function isinstant(). I can use that to compare datatypes. 
+
+#### Day idk + 11
+Asked the help of my cs teacher again. Today was quite bad because I thought I finished it, and gave a simple 3 line code to test, but it didn't work at all. After trying to diagnoise the problem by myself for some time, I enlisted the help of AI. AI suggested multiple changes but none of them worked (I even tried different AIs but none of them were able to fix the problem). I've got work today, so I'm going to try a bit more tomorrow to find out the problem.
+PS- for the reviewers, AI time took about 40 minutes of work. 
