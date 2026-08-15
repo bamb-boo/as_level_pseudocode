@@ -1,3 +1,3 @@
-DECLARE x : INTEGER
-x <- 9
+DECLARE x : STRING
+x <- "hi"
 OUTPUT x

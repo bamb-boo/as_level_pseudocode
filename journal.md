@@ -70,4 +70,7 @@ Second update- teacher told me about the function isinstant(). I can use that to
 
 #### Day idk + 11
 Asked the help of my cs teacher again. Today was quite bad because I thought I finished it, and gave a simple 3 line code to test, but it didn't work at all. After trying to diagnoise the problem by myself for some time, I enlisted the help of AI. AI suggested multiple changes but none of them worked (I even tried different AIs but none of them were able to fix the problem). I've got work today, so I'm going to try a bit more tomorrow to find out the problem.
-PS- for the reviewers, AI time took about 40 minutes of work. 
+PS- for the reviewers, AI time took about 40 minutes of work.
+
+#### Day idk + 12
+*Very* relieving. The interpreter is working! I had to fix my helper functions, specifically next and check. Then spent some time playing with my interpreter-- trying random codes, before trying to find bugs. Found a couple or two. There was a problem with string outputting, so I changed that (before, if *x* was a string, then *x <- hi* worked, but only *x <- "hi"* is supposed to work.) I also began working on arrays.

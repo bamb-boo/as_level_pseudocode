@@ -1,4 +1,4 @@
-from parser import Declaration, Constant, Assignment, Output, Input, If_loop, While_loop, For_loop, Repeat_loop, CaseOf, Call, Length, Integer, Random, Right, Mid, Lcase, Ucase
+from parser import Declaration, Constant, Assignment, Output, Input, If_loop, While_loop, For_loop, Repeat_loop, CaseOf, Call, Length, Integer, Random, Right, Mid, Lcase, Ucase, Arraydeclare
 import random
 from tokenizer import token
 from typing import Final
@@ -7,6 +7,7 @@ class interpreter:
     def __init__(self, ast_nodes):
         self.ast_nodes = ast_nodes
         self.variables = {}
+        self.procedures = {}
 
     def get_str(self, val):
         if isinstance(val, token):
@@ -18,6 +19,9 @@ class interpreter:
         
     def eval(self, expression):
         if isinstance(expression, str):
+            if (expression.startswith('"') and expression.endswith('"')) or (expression.startswith("'") and expression.endswith("'")):
+                return expression[1:-1]
+            
             if expression in self.variables:
                 return self.variables[expression]
             try:
@@ -26,7 +30,8 @@ class interpreter:
                 try:
                     return float(expression)
                 except ValueError:
-                    return expression
+                    return SyntaxError("variable not found")
+                    
         return expression
     
     def run(self):
@@ -109,8 +114,12 @@ class interpreter:
                         break
 
         elif isinstance(node, Call):
-            parameter_str = ", ".join(node.parameters)
-            node.subroutine.string_(parameter_str)
+            name = node.subroutine
+            if name in self.procedures:
+                for i in self.procedures[name].body:
+                    self.resolve(i)
+            else:
+                raise SyntaxError("subroutine not defined")
 
         elif isinstance(node, Length):
             return len(str(self.eval(node.str_branch)))
@@ -123,13 +132,13 @@ class interpreter:
 
         elif isinstance(node, Right):
             var = str(self.eval(self.get_str(node.var)))
-            length = str(self.eval(self.get_str(node.length)))
+            length = int(self.eval(self.get_str(node.length)))
             return var[-length:] if length < len(var) else var
 
         elif isinstance(node, Mid):
             var = str(self.eval(self.get_str(node.var)))
-            place = str(self.eval(self.get_str(node.place)))
-            length = str(self.eval(self.get_str(node.length)))
+            place = int(self.eval(self.get_str(node.place)))
+            length = int(self.eval(self.get_str(node.length)))
             return var[place - 1:place - 1 + length]
 
         elif isinstance(node, Lcase):
@@ -137,6 +146,19 @@ class interpreter:
 
         elif isinstance(node, Ucase):
             return str(self.eval(node.var)).upper()
+
+        elif isinstance(node, Array):
+            if not node.y:
+                x = node.x
+                return x
+            else:
+                x = node.x
+                y = node.y
+                both = []
+                both.append(x)
+                both.append(y)
+                return both
+            
 
 def get_string(self, val):
     if isinstance(val, token):

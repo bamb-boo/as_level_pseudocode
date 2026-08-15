@@ -201,7 +201,7 @@ def tokenize(path):
                 index = index + 1
             continue
 
-        quotes = ["'", "'"]
+        quotes = ['"', "'"]
         if file[index] in quotes:
             in_string = not in_string
             spacecheck = spacecheck + file[index]
@@ -355,7 +355,7 @@ def tokenize(path):
                         ends = i
                         break
                 if starts == ends and starts != "":
-                    if len(tokens[k]) == 3:
+                    if len(tokens[k]) == 3 and starts == "'" and ends == "'":
                         tokens[k] = token(type = tokentype.char, string_ = tokens[k], literal = tokens[k][1], line = line)
                     else:
                         tokens[k] = token(type = tokentype.string, string_ = tokens[k], literal = tokens[k][1:-1], line = line)

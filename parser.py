@@ -9,6 +9,12 @@ class Declaration:
         self.name = name
         self.datatype = datatype
 
+class Arraydeclare:
+    def __init__(self, name, datatype, dimensions):
+        self.name = name
+        self.datatype = datatype
+        self.dimensions = dimensions
+
 class Constant:
     def __init__(self, name, datatype):
         self.name = name
@@ -130,18 +136,16 @@ class parser:
 
     # helper function to get the next token after reading it and advancing
     def next(self):
-        if self.end() == False:
+        token = self.tokens[self.current]
+        if not self.end():
             self.current = self.current + 1
-        return self.previous()
+        return token
 
     # helper function to check if the token is of a certain datatype without advancing
     def check(self, token_type):
-        if self.end() == False:
-            if self.tokens[self.current].type == token_type:
-                return True
-            return False
-        else:
-            return False
+        if self.current < len(self.tokens):
+            return self.tokens[self.current].type == token_type
+        return False
 
     # helper function to check if the token is of a datatype and advances if it matches
     def match(self, *token_type):
@@ -217,17 +221,45 @@ class parser:
     
     # to DECLARE    
     def declaration(self):
-        self.next()  # Consume DECLARE
+        self.next()  
         var = self.tokens[self.current]
-        self.next()  # Consume variable name
+        self.next()
         
         if self.check(tokentype.colon):
-            self.next()  # Consume :
-            
+            self.next()
+
+        if self.check(tokentype.array):
+            self.consume(tokentype.array)
+            self.consume(tokentype.left_brkt)
+            dimensions = []
+            low = int(self.consume(tokentype.integer).string_)
+            self.consume(tokentype.colon)
+            up = int(self.consume(tokentype.integer).string_)
+            dimensions.append(low)
+            dimensions.append(up)
+            if self.check(tokentype.comma):
+                lower = int(self.consume(tokentype.integer).string_)
+                self.consume(tokentype.colon)
+                upper = int(self.consume(tokentype.integer).string_)
+                dimensions.append(lower)
+                dimensions.append(upper)
+
+            '''while True:
+                low = int(self.consume(tokentype.integer).string_)
+                self.consume(tokentype.colon)
+                up = int(self.consume(tokentype.integer).string_)
+                dimensions.append(low)
+                dimensions.append(up)
+                if self.check(tokentype.comma):
+                    self.consume(tokentype.comma)
+                else:
+                    break'''
+
+            self.next()
+            return Arraydeclare(var, datatype, dimensions)
+
         datatype = self.tokens[self.current]
-        self.next()  # Consume datatype (INTEGER, STRING, etc.)
-        
-        # DO NOT consume the newline here. Let parse() handle it.
+        self.next()
         return Declaration(var, datatype)
     '''
     def declaration(self):
@@ -299,9 +331,10 @@ class parser:
     # to OUTPUT    
     def output_statement(self):
         self.next()
-        # self.consume(tokentype.output_)
         branch = []
+
         while not self.check(tokentype.newline) and not self.check(tokentype.eof):
+            print("OUTPUT DEBUG:", self.current, self.tokens[self.current])
             branch.append(self.tokens[self.current])
             self.next()
 
@@ -309,16 +342,15 @@ class parser:
             branch = branch[0]
 
         return Output(branch)
-    
-        ''' while True:
-            if self.tokens[self.current].string_ != "\n":
-                x = self.next()
-                if x.string_ != ",":
-                    branch.append(x.string_)
-            else:
-                break
-        return Output(branch)'''
-    
+    ''' while True:
+        if self.tokens[self.current].string_ != "\n":
+            x = self.next()
+            if x.string_ != ",":
+                branch.append(x.string_)
+        else:
+            break
+    return Output(branch)'''
+
     # to INPUT
     def input_statement(self):
         self.consume(tokentype.input_)
@@ -483,16 +515,13 @@ class parser:
     def integer_(self):
         self.consume(tokentype.int_)
         self.consume(tokentype.left_par)
-        branch = ""
-        while True:
-            if self.next() != tokentype.right_par:
-                branch = branch + self.tokens[self.current].string_
-            else:
-                break
-
-        branch = float(branch)
-        branch = int(branch)
-        return Integer(branch)
+        branch = []
+        while not self.check(tokentype.right_par) and not self.end():
+            branch.append(self.next().string_)
+        
+        self.consume(tokentype.right_par)
+        str_branch = " ".join(branch)
+        return Integer(str_branch)
 
     def rand_(self):
         self.consume(tokentype.rand)
