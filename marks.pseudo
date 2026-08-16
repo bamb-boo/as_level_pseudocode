@@ -1,3 +1,9 @@
-DECLARE x : STRING
-x <- "hi"
-OUTPUT x
+DECLARE Score : INTEGER
+OUTPUT "What did you get"
+INPUT Score
+
+IF Score >= 50 THEN
+    OUTPUT "Status: Pass"
+ELSE
+    OUTPUT "Status: Fail"
+ENDIF

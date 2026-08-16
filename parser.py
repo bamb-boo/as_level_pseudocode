@@ -237,12 +237,17 @@ class parser:
             up = int(self.consume(tokentype.integer).string_)
             dimensions.append(low)
             dimensions.append(up)
+
             if self.check(tokentype.comma):
                 lower = int(self.consume(tokentype.integer).string_)
                 self.consume(tokentype.colon)
                 upper = int(self.consume(tokentype.integer).string_)
                 dimensions.append(lower)
                 dimensions.append(upper)
+
+            self.consume(tokentype.right_brkt)
+            self.consume(tokentype.of)
+            datatype = self.tokens[self.current]
 
             '''while True:
                 low = int(self.consume(tokentype.integer).string_)
@@ -318,6 +323,20 @@ class parser:
         if self.check(tokentype.arrow):
             self.next()
 
+        indices = []
+        if self.check(tokentype.left_brkt):
+            self.consume(tokentype.left_brkt)
+            indices.append(tokentype.integer)
+            self.consume(tokentype.colon)
+            indices.append(tokentype.integer)
+
+            if self.check(tokentype.comma):
+                self.consume(tokentype.comma)
+                indices.append(tokentype.integer)
+                self.consume(tokentype.colon)
+                indices.append(tokentype.integer)
+            self.consume(tokentype.right_brkt)
+
         branch = []
         while not self.check(tokentype.newline) and not self.check(tokentype.eof):
             branch.append(self.tokens[self.current])
@@ -334,7 +353,6 @@ class parser:
         branch = []
 
         while not self.check(tokentype.newline) and not self.check(tokentype.eof):
-            print("OUTPUT DEBUG:", self.current, self.tokens[self.current])
             branch.append(self.tokens[self.current])
             self.next()
 

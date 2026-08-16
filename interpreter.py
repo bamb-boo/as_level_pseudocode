@@ -2,13 +2,28 @@ from parser import Declaration, Constant, Assignment, Output, Input, If_loop, Wh
 import random
 from tokenizer import token
 from typing import Final
+import numpy as np
 
 class interpreter:
     def __init__(self, ast_nodes):
         self.ast_nodes = ast_nodes
         self.variables = {}
+        self.types = {}
         self.procedures = {}
 
+    def check_type(self, var_name, value):
+        expected = self.types[var_name]
+        if expected == "INTEGER" and not isinstance(value, int):
+            raise TypeError("datatype mismatch")
+        elif expected == "REAL" and not isinstance(value, (int, float)):
+            raise TypeError("datatype mismatch")
+        elif expected == "STRING" and not isinstance(value, str):
+            raise TypeError("datatype mismatch")
+        elif expected == "CHAR" and not (isinstance(value, str) and len(value) == 1):
+            raise TypeError("datatype mistmatch")
+        elif expected == "BOOLEAN" and not isinstance(value, bool):
+            raise TypeError("datatype mismatch")
+        
     def get_str(self, val):
         if isinstance(val, token):
             return val.string_
@@ -30,7 +45,7 @@ class interpreter:
                 try:
                     return float(expression)
                 except ValueError:
-                    return SyntaxError("variable not found")
+                    return NameError("variable not found")
                     
         return expression
     
@@ -42,7 +57,9 @@ class interpreter:
     def resolve(self, node):
         if isinstance(node, Declaration):
             var_name = self.get_str(node.name)
-            self.variables[var_name] = node.datatype
+            self.variables[var_name] = None
+            datatype = self.get_str(node.datatype).upper()
+            self.types[var_name] = datatype
 
         elif isinstance(node, Constant):
             var_name = self.get_str(node.name)
@@ -68,7 +85,17 @@ class interpreter:
 
         elif isinstance(node, Input):
             var_name = self.get_str(node.var)
-            self.variables[var_name] = self.eval(input())
+            val= input()
+            if var_name in self.types:
+                expected = self.types[var_name]
+                if expected == "INTEGER":
+                    val = int(val)
+                elif expected == "REAL":
+                    val = float(val)
+                elif expected == "BOOL":
+                    val = bool(val)
+            self.check_type(var_name, val)
+            self.variables[var_name] = val
 
         elif isinstance(node, If_loop):
             if self.eval(self.get_str(node.condition)):
@@ -91,7 +118,9 @@ class interpreter:
                 x = 1
             else:
                 x = -1
+
             for i in range(start, end + x, step):
+                self.check_type(node.index, i)
                 self.variables[node.index] = i
                 for x in node.branch:
                     self.resolve(x)
@@ -147,31 +176,26 @@ class interpreter:
         elif isinstance(node, Ucase):
             return str(self.eval(node.var)).upper()
 
-        elif isinstance(node, Array):
-            if not node.y:
-                x = node.x
-                return x
-            else:
-                x = node.x
-                y = node.y
-                both = []
-                both.append(x)
-                both.append(y)
-                return both
-            
+        elif isinstance(node, Arraydeclare):
+            var = self.get_strstr(node.var)
+            try:
+                first = int(node.dimensioons[0]) + 1
+                second = int(node.dimensions[1]) + 1
+                third = int(node.dimensions[2]) + 1
+                fourth = int(node.dimensions[3]) + 1
+                var = np.empty((second, fourth))
+            except IndexError:
+                first = int(node.dimensions[0]) + 1
+                second = int(node.dimensions[1]) + 1
+                var = np.empty(second)
 
-def get_string(self, val):
-    if isinstance(val, token):
-        return val.string_
-    if val is not None:
-        return str(val)
-    else:
-        return ""
+            self.variables[var_name] = var
 
-def get_string(self, val):
-    if isinstance(val, token):
-        return val.string_
-    if val is not None:
-        return str(val)
-    else:
-        return ""
+
+    def get_string(self, val):
+        if isinstance(val, token):
+            return val.string_
+        if val is not None:
+            return str(val)
+        else:
+            return ""
