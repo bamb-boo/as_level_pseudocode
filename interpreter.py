@@ -36,16 +36,28 @@ class interpreter:
         if isinstance(expression, str):
             if (expression.startswith('"') and expression.endswith('"')) or (expression.startswith("'") and expression.endswith("'")):
                 return expression[1:-1]
-            
+
+            if "[" in expression and "]" in expression:
+                open = expression.find("[")
+                close = expression.find("]")
+                var_name = expression[0:open].strip()
+                text = expression[open + 1:close].strip()
+                part = text.split(",")
+
+                if len(part) == 1:
+                    return self.variables[var_name][int(self.eval(part[0]))]
+                elif len(part) == 2:
+                    return self.variables[var_name][int(self.eval(part[0])), int(self.eval(part[1]))]
+                
             if expression in self.variables:
                 return self.variables[expression]
             try:
-                return int(expression)
+                return int(expression)  
             except ValueError:
                 try:
                     return float(expression)
                 except ValueError:
-                    return NameError("variable not found")
+                    raise NameError("variable not found")
                     
         return expression
     
@@ -72,16 +84,32 @@ class interpreter:
                     var_str = " ".join([self.get_str(i) for i in node.branch])
             else:
                 var_str = self.get_str(node.branch)
-            self.variables[var_name] = self.eval(var_str)
+
+            var_str = var_str.replace("<-", "").strip()
+            val = self.eval(var_str)
+
+            if getattr(node, "indices", None):
+                if len(node.indices) == 1:
+                    first = int(self.get_str(node.indices[0]))
+                    self.variables[var_name][first] = val
+                
+                elif len(node.indices) == 2:
+                    first = int(self.get_str(node.indices[0]))
+                    second = int(self.get_str(node.indices[1]))
+                    self.variables[var_name][first, second] = val
+            else:
+                self.variables[var_name] = val
 
         elif isinstance(node, Output):
             eval = []
             if isinstance(node.branch, list):
+                string = ""
                 for i in node.branch:
-                    eval.append(str(self.eval(self.get_str(i))))
+                    string = string + self.get_str(i)
+                result = str(self.eval(string))
             else:
-                eval.append(str(self.eval(self.get_str(node.branch))))
-            print(" ".join(eval))
+                result = str(self.eval(self.get_str(node.branch)))
+            print(result)
 
         elif isinstance(node, Input):
             var_name = self.get_str(node.var)
@@ -177,9 +205,9 @@ class interpreter:
             return str(self.eval(node.var)).upper()
 
         elif isinstance(node, Arraydeclare):
-            var = self.get_strstr(node.var)
+            var_name = self.get_str(node.name)
             try:
-                first = int(node.dimensioons[0]) + 1
+                first = int(node.dimensions[0]) + 1
                 second = int(node.dimensions[1]) + 1
                 third = int(node.dimensions[2]) + 1
                 fourth = int(node.dimensions[3]) + 1

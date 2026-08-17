@@ -21,9 +21,13 @@ class Constant:
         self.datatype = datatype
 
 class Assignment:
-    def __init__(self, var, branch):
+    def __init__(self, var, branch, indices = None):
         self.var = var
         self.branch = branch
+        if indices is not None:
+            self.indices = indices
+        else:
+            self.indices = []
 
 class Output:
     def __init__(self, branch):
@@ -239,6 +243,7 @@ class parser:
             dimensions.append(up)
 
             if self.check(tokentype.comma):
+                self.consume(tokentype.comma)
                 lower = int(self.consume(tokentype.integer).string_)
                 self.consume(tokentype.colon)
                 upper = int(self.consume(tokentype.integer).string_)
@@ -326,15 +331,14 @@ class parser:
         indices = []
         if self.check(tokentype.left_brkt):
             self.consume(tokentype.left_brkt)
-            indices.append(tokentype.integer)
-            self.consume(tokentype.colon)
-            indices.append(tokentype.integer)
+            indices.append(self.tokens[self.current])
+            self.next()
 
             if self.check(tokentype.comma):
                 self.consume(tokentype.comma)
-                indices.append(tokentype.integer)
-                self.consume(tokentype.colon)
-                indices.append(tokentype.integer)
+                indices.append(self.tokens[self.current])
+                self.next()
+
             self.consume(tokentype.right_brkt)
 
         branch = []
@@ -345,7 +349,7 @@ class parser:
         if len(branch) == 1:
             branch = branch[0]
 
-        return Assignment(var, branch)
+        return Assignment(var, branch, indices = indices)
     
     # to OUTPUT    
     def output_statement(self):
