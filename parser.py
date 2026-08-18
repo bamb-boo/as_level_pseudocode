@@ -364,14 +364,15 @@ class parser:
             branch = branch[0]
 
         return Output(branch)
-    ''' while True:
-        if self.tokens[self.current].string_ != "\n":
-            x = self.next()
-            if x.string_ != ",":
-                branch.append(x.string_)
-        else:
-            break
-    return Output(branch)'''
+    
+    # while True:
+    #     if self.tokens[self.current].string_ != "\n":
+    #         x = self.next()
+    #         if x.string_ != ",":
+    #             branch.append(x.string_)
+    #     else:
+    #         break
+    # return Output(branch)
 
     # to INPUT
     def input_statement(self):
@@ -613,9 +614,26 @@ class parser:
         self.consume(tokentype.endfunction_)
         return Function_def(var, returning, body)
 
-    # def procedure__(self):
+    def procedure__(self):
+        tokentypes = ["tokentype.string", "tokentype.char", "tokentype.integer", "tokentype.real", "tokentype.boolean", "tokentype.date"]
+        self.consume(tokentype.procedure_)
+        var = self.consume(tokentype.identifier)
+        self.consume(tokentype.left_par)
+        self.consume(tokentype.right_par)
+        params = []
+        while True:
+            if self.previous().tokentype in tokentypes and self.tokens[self.current].tokentype == tokentype.declare:
+                sub_params = []
+                if self.tokens[self.current].tokentype != tokentype.comma:
+                    sub_params.append(self.tokens[self.current])
 
-    # def 
+                self.consume(tokentype.comma)
+            else:
+                break
+
+
+        
+    
 
 # for math expressions
 class expression:
@@ -674,39 +692,54 @@ def calculate(nodes):
 
     while True:
         high = None
-        max = 0
+        max_priority = 0
 
-        # to get highest priority
-        for i in nodes:
-            if i.priority > max and i.priority > 0:
-                max = i.priority
-                high = i
+        for node in nodes:
+            if node.priority > max_priority and node.priority > 0:
+                max_priority = node.priority
+                high = node
 
-        if high == None:
+        if high is None:
             break
 
-        left = high.prev
-        right = high.next
+        high.left = high.prev
+        high.right = high.next
 
-        if not left or not right:
+        if not high.left or not high.right:
             raise SyntaxError(f"incomplete expression near {high.value}")
 
-        high.left = left
-        high.right = right
+        l_val = float(high.left.value)
+        r_val = float(high.right.value)
+
+        if high.type == tokentype.plus:
+            res = l_val + r_val
+        elif high.type == tokentype.sub:
+            res = l_val - r_val
+        elif high.type == tokentype.mul:
+            res = l_val * r_val
+        elif high.type == tokentype.div:
+            res = l_val / r_val
+        elif high.type == tokentype.mod_operate:
+            res = l_val % r_val
+        elif high.type == tokentype.div_operate:
+            res = l_val // r_val
+
+        if res.is_integer():
+            high.value = int(res)
+        else:
+            high.value = res
+
         high.priority = 0
-        high.prev = left.prev
+        high.prev = high.left.prev
 
-        # main token has left token's value and right token's value
-        if left.prev:
-            left.prev.next = high
+        if high.left.prev:
+            high.left.prev.next = high
 
-        high.next = right.next
-        if right.next:
-            right.next.prev = high
+        high.next = high.right.next
+        if high.right.next:
+            high.right.next.prev = high
 
-        # values of left and right are put into the main token, so left and right are not needed, and because of that, removed
-        nodes.remove(left)
-        nodes.remove(right)
+        nodes.remove(high.left)
+        nodes.remove(high.right)
 
     return nodes[0]
-        

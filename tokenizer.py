@@ -139,13 +139,15 @@ class token:
             with open(path, "r") as f:
                 content = f.read()
             return content
+        else:
+            content = path
 
 def tokenize(path):
-    if not path.lower().endswith(".pseudo"):
-        raise ValueError("only .pseudo files are accepted")
-
-    with open(path, "r") as f:
-        content = f.read()
+    if path.lower().endswith("pseudo"):
+        with open(path, "r") as f:
+            content = f.read()
+    else:
+        content = str(path)
         
     # declaring some variables
     tokens = []

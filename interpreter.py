@@ -1,6 +1,6 @@
-from parser import Declaration, Constant, Assignment, Output, Input, If_loop, While_loop, For_loop, Repeat_loop, CaseOf, Call, Length, Integer, Random, Right, Mid, Lcase, Ucase, Arraydeclare
+from parser import Declaration, Constant, Assignment, Output, Input, If_loop, While_loop, For_loop, Repeat_loop, CaseOf, Call, Length, Integer, Random, Right, Mid, Lcase, Ucase, Arraydeclare, priority, calculate
 import random
-from tokenizer import token
+from tokenizer import token, tokentype, tokenize
 from typing import Final
 import numpy as np
 
@@ -32,33 +32,120 @@ class interpreter:
         else:
             return ""
         
+    # def eval(self, expression):
+    #     if isinstance(expression, str):
+    #         if (expression.startswith('"') and expression.endswith('"')) or (expression.startswith("'") and expression.endswith("'")):
+    #             return expression[1:-1]
+
+    #         if "[" in expression and "]" in expression:
+    #             open = expression.find("[")
+    #             close = expression.find("]")
+    #             var_name = expression[0:open].strip()
+    #             text = expression[open + 1:close].strip()
+    #             part = text.split(",")
+
+    #             if len(part) == 1:
+    #                 return self.variables[var_name][int(self.eval(part[0]))]
+    #             elif len(part) == 2:
+    #                 return self.variables[var_name][int(self.eval(part[0])), int(self.eval(part[1]))]
+                
+    #         if expression in self.variables:
+    #             return self.variables[expression]
+            
+    #         try:
+    #             return int(expression)  
+    #         except ValueError:
+    #             try:
+    #                 return float(expression)
+    #             except ValueError:
+    #                 pass
+
+    #         for i in self.variables:
+    #             val = self.variables[i]
+    #             if val is not None:
+    #                 expression = expression.replace(i, str(val))
+    #         tokens = tokenize(expression)
+    #         nodes = priority(tokens)
+    #         result = calculate(nodes)
+    #         if hasattr(result, "value"):
+    #             val = result.value
+    #         else:
+    #             val = result
+    #         try:
+    #             return int(val)
+    #         except ValueError:
+    #             try:
+    #                 return float(val)
+    #             except TypeError:
+    #                 return TypeError("wrong datatypes")
+
+    #     return expression
+    
     def eval(self, expression):
         if isinstance(expression, str):
+            expression = expression.strip()
+
+            # 1. Strip string literals
             if (expression.startswith('"') and expression.endswith('"')) or (expression.startswith("'") and expression.endswith("'")):
                 return expression[1:-1]
 
+            # 2. Handle array index expressions
             if "[" in expression and "]" in expression:
-                open = expression.find("[")
-                close = expression.find("]")
-                var_name = expression[0:open].strip()
-                text = expression[open + 1:close].strip()
+                open_b = expression.find("[")
+                close_b = expression.find("]")
+                var_name = expression[0:open_b].strip()
+                text = expression[open_b + 1:close_b].strip()
                 part = text.split(",")
 
                 if len(part) == 1:
                     return self.variables[var_name][int(self.eval(part[0]))]
                 elif len(part) == 2:
                     return self.variables[var_name][int(self.eval(part[0])), int(self.eval(part[1]))]
-                
+            
+            # 3. Direct variable lookup
             if expression in self.variables:
                 return self.variables[expression]
+            
+            # 4. Direct number check
             try:
                 return int(expression)  
             except ValueError:
                 try:
                     return float(expression)
                 except ValueError:
-                    raise NameError("variable not found")
-                    
+                    pass
+
+            # 5. Safe Variable Substitution
+            # Replaces exact matching identifiers without corrupting words/operators
+            for key, v in self.variables.items():
+                if v is not None and key in expression:
+                    # Token-boundary replacement check
+                    import re
+                    pattern = r'\b' + re.escape(key) + r'\b'
+                    expression = re.sub(pattern, str(v), expression)
+
+            # 6. Parse and evaluate
+            tokens = tokenize(expression)
+            nodes = priority(tokens)
+            result = calculate(nodes)
+
+            # Extract underlying value if stored in an object attribute
+            if hasattr(result, "value"):
+                val = result.value
+            elif hasattr(result, "string_"):
+                val = result.string_
+            else:
+                val = result
+
+            # 7. Safe Type Conversion
+            try:
+                return int(val)
+            except (ValueError, TypeError):
+                try:
+                    return float(val)
+                except (ValueError, TypeError):
+                    return val  # Returns raw result (e.g. string or evaluated boolean) if non-numeric
+
         return expression
     
     def run(self):
@@ -150,8 +237,8 @@ class interpreter:
             for i in range(start, end + x, step):
                 self.check_type(node.index, i)
                 self.variables[node.index] = i
-                for x in node.branch:
-                    self.resolve(x)
+                for j in node.branch:
+                    self.resolve(j)
 
         elif isinstance(node, Repeat_loop):
             while True:
