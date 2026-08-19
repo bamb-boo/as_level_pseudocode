@@ -1,0 +1,16 @@
+// {
+//     "version": "0.2.0",
+//     "configurations": [
+//         {
+//             "name": "Run Active Pseudocode File",
+//             "type": "debugpy",
+//             "request": "launch",
+//             "program": "${workspaceFolder}/main.py",
+//             "args": ["${file}"],
+//             "console": "integratedTerminal",
+//             "noDebug": true
+//         }
+//     ]
+// }
+
+// THIS DOESN'T WORK
