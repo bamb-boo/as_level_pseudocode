@@ -14,6 +14,8 @@ main.py
 
 _any_.pseudo file (you can open a new file, save it with the name followed by .pseudo (example- test.pseudo))
 
+To run, edit the .pseudo file to whatever you want, then either run "python main.py _any_.pseudo" (replace _any_ with the file-name) or click **Run** in main.py after setting the file path (open main.py to see further)
+
 ## Why
 Me studying in my AS levels wanted an interpreter to write code on and run it. I (quite stupidly) thought this would be a small couple-of-days long project, until it blossomed into something much larger. pseudocode.pro was an option, but also wanted to have the thrill of building my own interpreter...
 
