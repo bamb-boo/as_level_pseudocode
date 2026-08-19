@@ -1,6 +1,7 @@
 from tokenizer import tokenize
 from parser import parser
 from interpreter import interpreter
+import sys
 
 def run(path):
     tokens = tokenize(path)
@@ -12,4 +13,8 @@ def run(path):
     interpreted.run()
     
 if __name__ == "__main__":
-    run("marks.pseudo")
+    if len(sys.argv) > 1:
+        runn = sys.argv[1]
+    else:
+        runn = "marks.pseudo"
+    run(runn)

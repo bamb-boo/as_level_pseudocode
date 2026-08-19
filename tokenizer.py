@@ -289,6 +289,7 @@ def tokenize(path):
         if i.endswith("_"):
             underscore.append(i[:-1])
 
+    line = 1
     # beeg thing
     for k in range(len(tokens)):
         tokens[k] = tokens[k].replace("\x00", " ")

@@ -1,4 +1,4 @@
-from parser import Declaration, Constant, Assignment, Output, Input, If_loop, While_loop, For_loop, Repeat_loop, CaseOf, Call, Length, Integer, Random, Right, Mid, Lcase, Ucase, Arraydeclare, priority, calculate
+from parser import Declaration, Constant, Assignment, Output, Input, If_loop, While_loop, For_loop, Repeat_loop, CaseOf, Call, Length, Integer, Random, Right, Mid, Lcase, Ucase, Arraydeclare, priority, calculate, Procedure_def, Call
 import random
 from tokenizer import token, tokentype, tokenize
 from typing import Final
@@ -12,7 +12,8 @@ class interpreter:
         self.procedures = {}
 
     def check_type(self, var_name, value):
-        expected = self.types[var_name]
+        expected = self.types[var_name].upper()
+
         if expected == "INTEGER" and not isinstance(value, int):
             raise TypeError("datatype mismatch")
         elif expected == "REAL" and not isinstance(value, (int, float)):
@@ -257,14 +258,6 @@ class interpreter:
                         self.resolve(statement)
                         break
 
-        elif isinstance(node, Call):
-            name = node.subroutine
-            if name in self.procedures:
-                for i in self.procedures[name].body:
-                    self.resolve(i)
-            else:
-                raise SyntaxError("subroutine not defined")
-
         elif isinstance(node, Length):
             return len(str(self.eval(node.str_branch)))
         
@@ -306,6 +299,43 @@ class interpreter:
 
             self.variables[var_name] = var
 
+        elif isinstance(node, Procedure_def):
+            self.procedures[node.name] = node
+
+        elif isinstance(node, Call):
+            name = node.subroutine
+            if name in self.procedures:
+                pro = self.procedures[name]
+                if hasattr(node, "parameters") and node.parameters is not None:
+                    args = []
+                    if isinstance(node.parameters, str):
+                        raw_args = node.parameters.replace(",", " ").split()
+                    else:
+                        raw_args = node.parameters
+
+                    for arg in raw_args:
+                        args.append(self.eval(arg))
+                    
+                    min = len(pro.params)
+                    if len(pro.params) > len(args):
+                        min = len(args)
+
+                    for i in range(min):
+                        if isinstance(pro.params[i], tuple):
+                            name, type = pro.params[i]
+                        else:
+                            name, type = pro.params[i], ""
+
+                        if type:
+                            self.types[name] = type
+                            
+                        self.check_type(name, args[i])
+                        self.variables[name] = args[i]
+
+                for i in pro.body:
+                    self.resolve(i)
+            else:
+                raise SyntaxError("procedure not fount")
 
     def get_string(self, val):
         if isinstance(val, token):

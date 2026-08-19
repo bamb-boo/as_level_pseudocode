@@ -108,6 +108,16 @@ class Function_def:
         self.returning = returning
         self.body = body
 
+class Procedure_def:
+    def __init__(self, name, params, body):
+        if hasattr(name, "string"):
+            self.name = name.string_
+        else:
+            self.name = str(name)
+
+        self.params = params
+        self.body = body
+
 class parser:
     # properties of self
     def __init__(self, tokens):
@@ -207,6 +217,8 @@ class parser:
             return self.ucase_()
         elif self.check(tokentype.function_):
             return self.function__()
+        elif self.check(tokentype.procedure_):
+            return self.procedure__()
         else:
             self.next()
             return None
@@ -619,21 +631,44 @@ class parser:
         self.consume(tokentype.procedure_)
         var = self.consume(tokentype.identifier)
         self.consume(tokentype.left_par)
-        self.consume(tokentype.right_par)
         params = []
         while True:
-            if self.previous().tokentype in tokentypes and self.tokens[self.current].tokentype == tokentype.declare:
-                sub_params = []
-                if self.tokens[self.current].tokentype != tokentype.comma:
-                    sub_params.append(self.tokens[self.current])
-
-                self.consume(tokentype.comma)
+            if self.tokens[self.current].type != tokentype.right_par:
+                if self.tokens[self.current].type != tokentype.comma:
+                    name = self.tokens[self.current].string_
+                    self.next()
+                    type = ""
+                    if self.check(tokentype.colon):
+                        self.consume(tokentype.colon)
+                        type = self.tokens[self.current].string_
+                        self.next()
+                    params.append((name, type))
+                else:
+                    self.consume(tokentype.comma)                
+                #     sub_params = []
+                #     sub_params.append(self.tokens[self.current])
+                #     self.next()
+                #     self.consume(tokentype.colon)
+                #     sub_params.append(self.tokens[self.current])
+                #     self.next()
+                #     params.append(sub_params)
+                # else:
+                #     self.consume(tokentype.comma)
+                
             else:
                 break
 
+        self.consume(tokentype.right_par)
 
-        
-    
+        body = []
+        while not self.check(tokentype.endprocedure_) and not self.end():
+            if self.check(tokentype.newline):
+                self.next()
+                continue
+            body.append(self.get_statement())
+
+        self.consume(tokentype.endprocedure_)
+        return Procedure_def(var.string_, params, body)    
 
 # for math expressions
 class expression:

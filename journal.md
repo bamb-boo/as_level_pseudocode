@@ -84,4 +84,7 @@ Yay! Arrays are also working! Took a *lot* of time to figure out bugs and issues
 #### Day idk + 14
 Fixed array implementation. 
 I tried to run an expression, which gave an error, so I tried debugging that. Changed a lot of code, and the logic itself at some parts, but I couldn't figure out the problem. Resorted to help of AI :( However, I did spend time trying to understand the code it gave me. In hindsight, that was what I should have done, but didn't do. Seems quite obvious right now. 
-Also began working on procedures.  
+Also began working on procedures.
+
+#### Day idk + 15
+Just realized I've been implementing procedures wrong...

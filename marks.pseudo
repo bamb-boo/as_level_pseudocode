@@ -1,3 +1,7 @@
-DECLARE x : INTEGER
-x <- 5+3*2/3
-OUTPUT x
+PROCEDURE multiply(a : INTEGER,  b : INTEGER)
+INPUT a
+INPUT b
+OUTPUT a*b
+ENDPROCEDURE
+
+CALL multiply(1, 2)
