@@ -19,5 +19,7 @@ To run, edit the .pseudo file to whatever you want, then either run "python main
 ## Why
 Me studying in my AS levels wanted an interpreter to write code on and run it. I (quite stupidly) thought this would be a small couple-of-days long project, until it blossomed into something much larger. pseudocode.pro was an option, but also wanted to have the thrill of building my own interpreter...
 
-#### [Requirements (also under requirements.txt)](https://github.com/bamb-boo/as_level_pseudocode/blob/main/requirements.txt)
+### [Requirements (also under requirements.txt)](https://github.com/bamb-boo/as_level_pseudocode/blob/main/requirements.txt)
 Just have numpy installed for array-handling.
+
+### [journal.md](https://github.com/bamb-boo/as_level_pseudocode/blob/main/extra_files/journal.md)
