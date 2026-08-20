@@ -1,0 +1,4 @@
+DECLARE x : INTEGER
+FOR x <- 1 TO 10
+    OUTPUT x
+NEXT x

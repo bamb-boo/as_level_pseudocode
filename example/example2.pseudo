@@ -1,0 +1,7 @@
+DECLARE done : BOOLEAN
+
+done <- TRUE
+IF done = TRUE THEN
+    OUTPUT "true!"
+    done <- FALSE
+ENDIF
