@@ -23,3 +23,7 @@ Me studying in my AS levels wanted an interpreter to write code on and run it. I
 Just have numpy installed for array-handling.
 
 ### [journal.md](https://github.com/bamb-boo/as_level_pseudocode/blob/main/extra_files/journal.md)
+
+## Images of code working!
+<img width="182" height="167" alt="image" src="https://github.com/user-attachments/assets/cc37ecc2-4cf4-4f95-86ae-5eff3bc162a9" />
+<img width="182" height="207" alt="image" src="https://github.com/user-attachments/assets/8e72206a-11c3-4c42-9c13-6aea574bb65f" />
