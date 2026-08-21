@@ -87,4 +87,10 @@ I tried to run an expression, which gave an error, so I tried debugging that. Ch
 Also began working on procedures.
 
 #### Day idk + 15
-Just realized I've been implementing procedures wrong...
+Just realized I've been implementing procedures wrong... Fixed that.
+
+#### Day idk + 16
+Might be finished tomorrow. Wrote some example codes, tried to find out bugs and fixed them...
+
+#### Day idk + 17
+Just found out a *huge* bug... In an if loop, due to the lack of checking for self.end(), a memory leak was happening. I had to debug a lot, changing different things before finding out the reason.
