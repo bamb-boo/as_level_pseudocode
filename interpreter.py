@@ -3,6 +3,7 @@ import random
 from tokenizer import token, tokentype, tokenize
 from typing import Final
 import numpy as np
+import re
 
 class interpreter:
     def __init__(self, ast_nodes):
@@ -10,6 +11,7 @@ class interpreter:
         self.variables = {}
         self.types = {}
         self.procedures = {}
+        self.bounds = {}
 
     def check_type(self, var_name, value):
         expected = self.types[var_name].upper()
@@ -85,7 +87,7 @@ class interpreter:
     def eval(self, expression):
         if isinstance(expression, str):
             expression = expression.strip()
-
+            
             # 1. Strip string literals
             if (expression.startswith('"') and expression.endswith('"')) or (expression.startswith("'") and expression.endswith("'")):
                 return expression[1:-1]
@@ -99,9 +101,9 @@ class interpreter:
                 part = text.split(",")
 
                 if len(part) == 1:
-                    return self.variables[var_name][int(self.eval(part[0]))]
+                    return self.variables[var_name][int(self.eval(part[0])) - self.bounds[var_name][0]]
                 elif len(part) == 2:
-                    return self.variables[var_name][int(self.eval(part[0])), int(self.eval(part[1]))]
+                    return self.variables[var_name][int(self.eval(part[0])) - self.bounds[var_name][0], int(self.eval(part[1])) - self.bounds[var_name][1]]
             
             # 3. Direct variable lookup
             if expression in self.variables:
@@ -178,12 +180,12 @@ class interpreter:
 
             if getattr(node, "indices", None):
                 if len(node.indices) == 1:
-                    first = int(self.get_str(node.indices[0]))
+                    first = int(self.eval(self.get_str(node.indices[0]))) - self.bounds[var_name][0]
                     self.variables[var_name][first] = val
                 
                 elif len(node.indices) == 2:
-                    first = int(self.get_str(node.indices[0]))
-                    second = int(self.get_str(node.indices[1]))
+                    first = int(self.eval(self.get_str(node.indices[0]))) - self.bounds[var][0]
+                    second = int(self.get_str(node.indices[1])) - self.bounds[var][1]
                     self.variables[var_name][first, second] = val
             else:
                 self.variables[var_name] = val
@@ -215,10 +217,10 @@ class interpreter:
 
         elif isinstance(node, If_loop):
             if self.eval(self.get_str(node.condition)):
-                for i in node.branch:
+                for i in node.then_branch:
                     self.resolve(i)
-            elif node.else_loop:
-                for i in node.else_loop:
+            elif node.else_branch:
+                for i in node.else_branch:
                     self.resolve(i)
 
         elif isinstance(node, While_loop):
@@ -292,10 +294,12 @@ class interpreter:
                 third = int(node.dimensions[2]) + 1
                 fourth = int(node.dimensions[3]) + 1
                 var = np.empty((second, fourth))
+                self.bounds[var_name] = int(node.dimensions[1]), int(node.dimensions[2])
             except IndexError:
                 first = int(node.dimensions[0]) + 1
                 second = int(node.dimensions[1]) + 1
                 var = np.empty(second)
+                self.bounds[var_name] = int(node.dimensions[0])
 
             self.variables[var_name] = var
 

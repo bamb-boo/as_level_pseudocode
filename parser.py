@@ -38,10 +38,10 @@ class Input:
         self.var = var
 
 class If_loop:
-    def __init__(self, condition, branch, else_loop):
+    def __init__(self, condition, then_branch, else_branch):
         self.condition = condition
-        self.branch = branch
-        self.else_loop = else_loop
+        self.then_branch = then_branch
+        self.else_branch = else_branch
 
 class While_loop:
     def __init__(self, condition, branch):
@@ -110,7 +110,7 @@ class Function_def:
 
 class Procedure_def:
     def __init__(self, name, params, body):
-        if hasattr(name, "string"):
+        if hasattr(name, "string_"):
             self.name = name.string_
         else:
             self.name = str(name)
@@ -396,32 +396,44 @@ class parser:
     def if_loop(self):
         self.consume(tokentype.if_)
         condition_tokens = []
-        InCondition = True
-
-        while InCondition:
-            if self.check(tokentype.then_):
-                InCondition = False
+        while self.current < len(self.tokens) and not self.check(tokentype.then_) and not self.end():
+            if self.check(tokentype.newline):
+                self.next()
             else:
-                condition_tokens.append(self.next().string_)
+                condition_tokens.append(self.tokens[self.current].string_)
+                self.next()
+
         condition = " ".join(condition_tokens)
+
         self.consume(tokentype.then_)
+        then_branch = []
+        else_branch = None
 
-        branch = []
-        else_loop = None
-
-        while not self.check(tokentype.endif_) and not self.check(tokentype.else_):
-            branch.append(self.get_statement())
+        while not self.check(tokentype.endif_) and not self.check(tokentype.else_) and not self.end():
+            if self.check(tokentype.newline):
+                self.next()
+            else:
+                statement = self.get_statement()
+                if statement is not None:
+                    then_branch.append(statement)
 
         if self.match(tokentype.else_):
             if self.check(tokentype.if_):
-                else_loop = [self.if_loop()]
+                else_branch = self.if_loop()
+                return If_loop(condition, then_branch, else_branch)
             else:
-                else_loop = []
-                while not self.check(tokentype.endif_):
-                    else_loop.append(self.get_statement())
+                else_branch = []
+                while not self.check(tokentype.endif_) and not self.end():
+                    if self.check(tokentype.newline):
+                        self.next()
+                    else:
+                        statement = self.get_statement()
+                        if statement is not None:
+                            else_branch.append(statement)
 
         self.consume(tokentype.endif_)
-        return If_loop(condition, branch, else_loop)
+        return If_loop(condition, then_branch, else_branch)
+
 
     # for WHILE loops
     def while_loop(self):
