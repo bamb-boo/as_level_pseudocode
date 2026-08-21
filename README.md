@@ -27,7 +27,9 @@ Just have numpy installed for array-handling.
 ## Images of code working!
 
 example1.pseudo
+
 <img width="182" height="207" alt="image" src="https://github.com/user-attachments/assets/8e72206a-11c3-4c42-9c13-6aea574bb65f" />
 
 example2.pseudo
+
 <img width="182" height="167" alt="image" src="https://github.com/user-attachments/assets/cc37ecc2-4cf4-4f95-86ae-5eff3bc162a9" />
